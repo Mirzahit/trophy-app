@@ -390,6 +390,42 @@
   .insight .h{font-size:10.5px;letter-spacing:.3px;text-transform:uppercase;font-weight:500;color:var(--gold);margin-bottom:10px}
   .insight p{font-size:13.5px;line-height:1.6}
 
+  /* Выбор роли */
+  .role-cards{display:flex;flex-direction:column;gap:12px}
+  @media (min-width:768px){.role-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}}
+  .role-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px 24px;text-align:left;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;gap:8px}
+  .role-card:hover{border-color:var(--text-primary);background:var(--bg-primary)}
+  .role-card .rc-label{font-size:10.5px;letter-spacing:.3px;text-transform:uppercase;color:var(--gold);font-weight:500}
+  .role-card .rc-title{font-size:18px;font-weight:500;letter-spacing:-.3px;color:var(--text-primary)}
+  .role-card .rc-desc{font-size:12.5px;color:var(--text-secondary);line-height:1.5;margin-top:4px}
+
+  /* Сайдбар — тренер */
+  #sidebar .s-switch{background:var(--bg-dark);color:var(--text-on-dark);border-radius:10px;padding:10px 12px;margin-bottom:14px}
+  #sidebar .s-switch-l{font-size:9.5px;letter-spacing:.3px;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+  #sidebar .s-switch-n{font-size:13px;font-weight:500;margin-bottom:6px}
+  #sidebar .s-switch-back{font-size:11px;color:var(--text-on-dark-dim);text-align:left;padding:0;background:none;border:none;cursor:pointer}
+  #sidebar .s-switch-back:hover{color:var(--text-on-dark)}
+  #sidebar .s-sub-label{font-size:9.5px;letter-spacing:.3px;text-transform:uppercase;color:var(--text-tertiary);padding:12px 14px 4px;font-weight:500}
+
+  /* Дашборд тренера — карточки спортсменов */
+  .ath-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+  @media (min-width:1024px){.ath-list{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}}
+  .ath-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px;cursor:pointer;transition:border-color .1s}
+  .ath-card:hover{border-color:var(--text-primary)}
+  .ath-head{margin-bottom:10px}
+  .ath-head .ath-name{font-size:16px;font-weight:500;letter-spacing:-.3px}
+  .ath-head .ath-cat{font-size:11.5px;color:var(--text-secondary);margin-top:3px}
+  .ath-rows{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .ath-rline{display:flex;justify-content:space-between;gap:10px;font-size:12px}
+  .ath-rline .ath-rk{color:var(--text-secondary)}
+  .ath-rline .ath-rv{color:var(--text-primary);font-weight:500;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ath-form{display:flex;gap:4px;margin-top:10px}
+  .ath-form .ff{flex:1;height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500}
+  .ath-form .ff.w{background:var(--bg-dark);color:var(--text-on-dark)}
+  .ath-form .ff.l{background:var(--bg-subtle);color:#5a5a52}
+  .ath-form .ff.d{background:var(--bg-subtle);color:#5a5a52}
+  .ath-form .ff.empty{background:transparent;border:1px dashed var(--border);color:var(--text-tertiary)}
+
   /* Онбординг */
   .ob{flex:1;display:flex;flex-direction:column}
   .ob h1{font-size:30px;font-weight:500;letter-spacing:-.8px;line-height:1.1;margin-top:20px}
@@ -434,10 +470,61 @@ const MONTHS_F=['января','февраля','марта','апреля','м�
 
 /* === Хранилище === */
 const STORAGE_KEY='trophy.v1';
-let state={profile:null,events:[],fights:[],weights:[],trainings:[],route:{name:'profile',params:{}}};
+/* state.athletes — массив. Активные state.profile/events/fights/weights/trainings/opponentNotes — синхронизированы с athletes[currentAthleteId].
+   Это слой совместимости: старый код использует прямые поля, новый код — currentAthlete(). */
+let state={
+  role:null,                  // 'athlete' | 'coach' | null
+  coach:null,                 // профиль тренера если role='coach'
+  currentAthleteId:null,
+  athletes:[],
+  profile:null,events:[],fights:[],weights:[],trainings:[],opponentNotes:{},goals:[],
+  route:{name:'dashboard',params:{}},
+};
 
-function load(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const d=JSON.parse(r);state.profile=d.profile||null;state.events=d.events||[];state.fights=d.fights||[];state.weights=d.weights||[];state.trainings=d.trainings||[]}}catch(e){}}
-function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify({profile:state.profile,events:state.events,fights:state.fights,weights:state.weights,trainings:state.trainings}))}
+function currentAthlete(){return state.athletes.find(a=>a.id===state.currentAthleteId)||null}
+function syncFromAthlete(){
+  const a=currentAthlete();
+  if(!a){state.profile=null;state.events=[];state.fights=[];state.weights=[];state.trainings=[];state.opponentNotes={};state.goals=[];return}
+  state.profile=a.profile;state.events=a.events;state.fights=a.fights;state.weights=a.weights;state.trainings=a.trainings;state.opponentNotes=a.opponentNotes||{};state.goals=a.goals||[];
+}
+function syncToAthlete(){
+  const a=currentAthlete();
+  if(!a)return;
+  a.profile=state.profile;a.events=state.events;a.fights=state.fights;a.weights=state.weights;a.trainings=state.trainings;a.opponentNotes=state.opponentNotes;a.goals=state.goals;
+}
+function switchAthlete(id){syncToAthlete();state.currentAthleteId=id;syncFromAthlete();save()}
+function addAthlete(profile){
+  const a={id:uid(),profile,events:[],fights:[],weights:[],trainings:[],opponentNotes:{},goals:[]};
+  state.athletes.push(a);
+  return a;
+}
+
+function load(){
+  try{
+    const r=localStorage.getItem(STORAGE_KEY);
+    if(!r)return;
+    const d=JSON.parse(r);
+    // Миграция старой схемы (profile на верхнем уровне, без athletes)
+    if(d.profile && !d.athletes){
+      const a={id:uid(),profile:d.profile,events:d.events||[],fights:d.fights||[],weights:d.weights||[],trainings:d.trainings||[],opponentNotes:{},goals:[]};
+      state.athletes=[a];
+      state.role='athlete';
+      state.currentAthleteId=a.id;
+    } else {
+      state.role=d.role||null;
+      state.coach=d.coach||null;
+      state.athletes=d.athletes||[];
+      state.currentAthleteId=d.currentAthleteId||(state.athletes[0]?state.athletes[0].id:null);
+    }
+    syncFromAthlete();
+  }catch(e){console.warn('load error',e)}
+}
+function save(){
+  syncToAthlete();
+  localStorage.setItem(STORAGE_KEY,JSON.stringify({
+    role:state.role,coach:state.coach,currentAthleteId:state.currentAthleteId,athletes:state.athletes
+  }));
+}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 
 /* === Утилиты === */
@@ -507,11 +594,13 @@ function sbar(){const t=new Date();return `<div class="sbar"><span>${String(t.ge
 
 function viewOnboarding(){
   const p=state.profile||{};
+  const coachMode = state.role==='coach';
   return `${sbar()}
   <div class="ob">
-    <div class="label">Новый спортсмен</div>
-    <h1>Твой цифровой<br/>трофейный зал</h1>
-    <div class="sub">Записывай бои, смотри прогресс, веди дневник ошибок. Всё оффлайн и сохраняется в этом браузере.</div>
+    ${coachMode?`<button class="btn-link" data-go="coach-dashboard" style="padding:0;margin-bottom:14px">← К команде</button>`:''}
+    <div class="label">${coachMode?'Добавление спортсмена':'Новый спортсмен'}</div>
+    <h1>${coachMode?'Новый спортсмен':'Твой цифровой трофейный зал'}</h1>
+    ${!coachMode?'<div class="sub">Записывай бои, смотри прогресс, веди дневник ошибок. Всё оффлайн и сохраняется в этом браузере.</div>':''}
     <form id="ob-form" style="margin-top:28px;flex:1;display:flex;flex-direction:column">
       <div class="field-row">
         <div class="field"><label>Имя</label><input name="firstName" required value="${esc(p.firstName||'')}"/></div>
@@ -533,9 +622,143 @@ function viewOnboarding(){
         <div class="field"><label>Клуб</label><input name="club" value="${esc(p.club||'')}"/></div>
       </div>
       <div class="field"><label>Тренер</label><input name="coach" value="${esc(p.coach||'')}" placeholder="ФИО"/></div>
-      <div style="margin-top:auto;padding-top:12px"><button type="submit" class="btn btn-primary">Начать</button></div>
+      <div style="margin-top:auto;padding-top:12px"><button type="submit" class="btn btn-primary">${coachMode?'Добавить':'Начать'}</button></div>
     </form>
   </div>`;
+}
+
+/* Выбор роли при первом запуске */
+function viewRolePick(){
+  return `${sbar()}
+    <div class="ob">
+      <div class="label">Добро пожаловать</div>
+      <h1>Trophy</h1>
+      <div class="sub">Цифровой трофейный зал и дневник подготовки. Выбери, как ты его используешь.</div>
+
+      <div class="role-cards" style="margin-top:28px">
+        <button class="role-card" data-pick-role="athlete">
+          <div class="rc-label">Я спортсмен</div>
+          <div class="rc-title">Веду свой дневник</div>
+          <div class="rc-desc">Турниры, бои, вес, тренировки, разборы. Всё в одном месте.</div>
+        </button>
+        <button class="role-card" data-pick-role="coach">
+          <div class="rc-label">Я тренер</div>
+          <div class="rc-title">Веду подопечных</div>
+          <div class="rc-desc">Несколько спортсменов в одном приложении. Переключение одним кликом.</div>
+        </button>
+      </div>
+
+      <div style="margin-top:auto;padding-top:20px">
+        <button class="btn-link" id="role-import" style="display:block;text-align:center;width:100%;color:var(--text-secondary)">Уже пользовался? Импортировать JSON</button>
+      </div>
+    </div>`;
+}
+
+/* Онбординг тренера */
+function viewCoachOnboarding(){
+  const c=state.coach||{};
+  return `${sbar()}
+    <div class="ob">
+      <div class="label">Профиль тренера</div>
+      <h1>Расскажи о себе</h1>
+      <div class="sub">Эти данные не уходят на сервер, всё локально.</div>
+      <form id="coach-form" style="margin-top:28px;flex:1;display:flex;flex-direction:column">
+        <div class="field-row">
+          <div class="field"><label>Имя</label><input name="firstName" required value="${esc(c.firstName||'')}"/></div>
+          <div class="field"><label>Фамилия</label><input name="lastName" required value="${esc(c.lastName||'')}"/></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Клуб</label><input name="club" value="${esc(c.club||'')}" placeholder="Название"/></div>
+          <div class="field"><label>Город</label><input name="city" value="${esc(c.city||'')}" placeholder="Алматы"/></div>
+        </div>
+        <div class="field"><label>Основной вид спорта</label>
+          <select name="sport">${SPORTS.map(s=>`<option value="${s.v}" ${(c.sports||[])[0]===s.v?'selected':''}>${s.n}</option>`).join('')}</select>
+        </div>
+        <div style="margin-top:auto;padding-top:12px"><button type="submit" class="btn btn-primary">Продолжить</button></div>
+      </form>
+    </div>`;
+}
+
+/* Дашборд тренера — список спортсменов + KPI команды */
+function viewCoachDashboard(){
+  const c=state.coach||{};
+  const as=state.athletes||[];
+
+  // собрать быстрые KPI по команде
+  let totalMedals=0, totalUpcoming=0, totalFights=0, totalWins=0;
+  const thisYear=new Date().getFullYear();
+  as.forEach(a=>{
+    (a.events||[]).forEach(e=>{
+      if([1,2,3].includes(e.place) && new Date(e.date).getFullYear()===thisYear) totalMedals++;
+      if(e.status==='upcoming') totalUpcoming++;
+    });
+    (a.fights||[]).forEach(f=>{
+      totalFights++;
+      if(f.result==='win') totalWins++;
+    });
+  });
+  const teamWinPct = totalFights ? Math.round(totalWins/totalFights*100) : 0;
+
+  return `${sbar()}
+    <div class="row">
+      <div>
+        <span class="label">Команда</span>
+        <h1 class="name" style="margin-top:4px">${esc(c.firstName||'Тренер')} ${esc(c.lastName||'')}</h1>
+        <div class="subtitle">${esc(c.club||'')}${c.club&&c.city?' · ':''}${esc(c.city||'')}</div>
+      </div>
+      <button class="btn-link" data-go="settings">Настройки</button>
+    </div>
+
+    <div class="kpi-grid" style="margin-top:22px">
+      <div class="kpi"><div class="k">Спортсменов</div><div class="v num">${as.length}</div></div>
+      <div class="kpi"><div class="k">Медалей ${thisYear}</div><div class="v num">${totalMedals}</div></div>
+      <div class="kpi"><div class="k">Предстоит</div><div class="v num">${totalUpcoming}</div></div>
+      <div class="kpi"><div class="k">Win% команды</div><div class="v num">${teamWinPct}<sup>%</sup></div></div>
+    </div>
+
+    <div class="row" style="margin-top:28px">
+      <span class="label">Спортсмены</span>
+      <button class="btn-link" data-go="athlete-add">+ Добавить</button>
+    </div>
+
+    ${as.length ? `<div class="ath-list">${as.map(a=>athleteCardHtml(a)).join('')}</div>` : `
+      <div class="empty-state" style="margin-top:20px">
+        <div class="e-icon">${medalIcon('#d4af37')}</div>
+        <div class="e-title">Пока ни одного спортсмена</div>
+        <div class="e-sub">Добавь первого — будешь видеть его турниры, результаты, форму и прогресс.</div>
+        <button class="btn btn-primary" style="margin-top:16px;max-width:260px" data-go="athlete-add">Добавить спортсмена</button>
+      </div>
+    `}
+  `;
+}
+
+function athleteCardHtml(a){
+  const p=a.profile||{};
+  const events=(a.events||[]).slice().sort((x,y)=>y.date.localeCompare(x.date));
+  const nextEv=events.find(e=>e.status==='upcoming'&&new Date(e.date)>=new Date(Date.now()-86400000));
+  const lastDone=events.find(e=>e.status!=='upcoming');
+  const last5=(a.fights||[]).slice().sort((x,y)=>{
+    const ea=(a.events||[]).find(e=>e.id===x.eventId), eb=(a.events||[]).find(e=>e.id===y.eventId);
+    return (eb?.date||'').localeCompare(ea?.date||'')
+  }).slice(0,5);
+  return `<div class="ath-card" data-switch-athlete="${a.id}">
+    <div class="ath-head">
+      <div class="ath-name">${esc(p.firstName||'')} ${esc(p.lastName||'')}</div>
+      <div class="ath-cat">до ${fmtN(p.weightCategoryKg||0)} кг · ${esc(sportName(p.sport)||'')}</div>
+    </div>
+    <div class="ath-rows">
+      <div class="ath-rline"><span class="ath-rk">Ближайший</span><span class="ath-rv">${nextEv?esc(nextEv.title)+' · '+fmtDateShort(nextEv.date):'не запланирован'}</span></div>
+      <div class="ath-rline"><span class="ath-rk">Последний</span><span class="ath-rv">${lastDone?`${lastDone.place?lastDone.place+' место':'—'} · ${esc(lastDone.title)}`:'нет данных'}</span></div>
+    </div>
+    <div class="ath-form">
+      ${Array.from({length:5},(_,i)=>{const f=last5[i];if(!f)return '<span class="ff empty">·</span>';return `<span class="ff ${f.result==='win'?'w':f.result==='loss'?'l':'d'}">${f.result==='win'?'П':f.result==='loss'?'Пр':'Н'}</span>`}).join('')}
+    </div>
+  </div>`;
+}
+
+/* Форма добавления нового спортсмена (тренером) — использует viewOnboarding */
+function viewAthleteAdd(){
+  return viewOnboarding();
 }
 
 function viewProfile(){
@@ -1046,26 +1269,37 @@ function insight(){
 
 function viewSettings(){
   const p=state.profile;
+  const isCoach=state.role==='coach';
   return `${sbar()}
     <div class="nav"><button class="back" data-back>←</button><div class="ctitle">Настройки</div><span></span></div>
-    <h1 class="name" style="font-size:22px;margin-top:14px">Профиль</h1>
-    <form id="profile-form" style="margin-top:12px">
-      <div class="field-row">
-        <div class="field"><label>Имя</label><input name="firstName" value="${esc(p.firstName||'')}" required/></div>
-        <div class="field"><label>Фамилия</label><input name="lastName" value="${esc(p.lastName||'')}" required/></div>
-      </div>
-      <div class="field"><label>Вид спорта</label><select name="sport">${SPORTS.map(s=>`<option value="${s.v}" ${p.sport===s.v?'selected':''}>${s.n}</option>`).join('')}</select></div>
-      <div class="field-row">
-        <div class="field"><label>Весовая</label><select name="weightCategoryKg">${WEIGHT_CATS.map(w=>`<option value="${w}" ${p.weightCategoryKg==w?'selected':''}>до ${fmtN(w)} кг</option>`).join('')}</select></div>
-        <div class="field"><label>Разряд</label><select name="rank">${RANKS.map(r=>`<option ${p.rank===r?'selected':''}>${r}</option>`).join('')}</select></div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>Город</label><input name="city" value="${esc(p.city||'')}"/></div>
-        <div class="field"><label>Клуб</label><input name="club" value="${esc(p.club||'')}"/></div>
-      </div>
-      <div class="field"><label>Тренер</label><input name="coach" value="${esc(p.coach||'')}"/></div>
-      <button type="submit" class="btn btn-primary">Сохранить</button>
-    </form>
+
+    <div class="label" style="margin-top:14px">Роль</div>
+    <div class="mini-card" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-size:14px;font-weight:500">${isCoach?'Тренер':'Спортсмен'}</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">${isCoach?(state.coach?.firstName||'')+' '+(state.coach?.lastName||''):(p?.firstName||'')+' '+(p?.lastName||'')}</div></div>
+      <button class="btn-link" id="switch-role">Сменить роль</button>
+    </div>
+
+    ${p ? `
+      <h2 class="name" style="font-size:18px;margin-top:24px">Профиль спортсмена</h2>
+      <form id="profile-form" style="margin-top:12px">
+        <div class="field-row">
+          <div class="field"><label>Имя</label><input name="firstName" value="${esc(p.firstName||'')}" required/></div>
+          <div class="field"><label>Фамилия</label><input name="lastName" value="${esc(p.lastName||'')}" required/></div>
+        </div>
+        <div class="field"><label>Вид спорта</label><select name="sport">${SPORTS.map(s=>`<option value="${s.v}" ${p.sport===s.v?'selected':''}>${s.n}</option>`).join('')}</select></div>
+        <div class="field-row">
+          <div class="field"><label>Весовая</label><select name="weightCategoryKg">${WEIGHT_CATS.map(w=>`<option value="${w}" ${p.weightCategoryKg==w?'selected':''}>до ${fmtN(w)} кг</option>`).join('')}</select></div>
+          <div class="field"><label>Разряд</label><select name="rank">${RANKS.map(r=>`<option ${p.rank===r?'selected':''}>${r}</option>`).join('')}</select></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Город</label><input name="city" value="${esc(p.city||'')}"/></div>
+          <div class="field"><label>Клуб</label><input name="club" value="${esc(p.club||'')}"/></div>
+        </div>
+        <div class="field"><label>Тренер</label><input name="coach" value="${esc(p.coach||'')}"/></div>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </form>
+    ` : ''}
+
     <div class="divider"></div>
     <div class="label">Данные</div>
     <div class="stack" style="margin-top:10px">
@@ -1073,15 +1307,23 @@ function viewSettings(){
       <button class="btn btn-ghost" id="import-json">Импорт из JSON</button>
       <button class="btn btn-danger" id="reset-all">Удалить все данные</button>
     </div>
-    <div style="margin-top:24px;color:var(--text-tertiary);font-size:11.5px;text-align:center">Trophy · v1 · работает оффлайн</div>`;
+    <div style="margin-top:24px;color:var(--text-tertiary);font-size:11.5px;text-align:center">Trophy · v2 · работает оффлайн</div>`;
 }
 
 function viewTabs(){
   const c=state.route.name;
+  if(state.role==='coach'){
+    return `<div class="tabs">
+      <button class="tab ${c==='coach-dashboard'?'on':''}" data-go="coach-dashboard">Команда</button>
+      <button class="tab ${c==='events'?'on':''}" data-tab="events">Календарь</button>
+      <button class="tab ${c==='stats'?'on':''}" data-tab="stats">Статы</button>
+      <button class="tab ${c==='settings'?'on':''}" data-go="settings">Ещё</button>
+    </div>`;
+  }
   return `<div class="tabs">
-    <button class="tab ${c==='profile'?'on':''}" data-tab="profile">Профиль</button>
-    <button class="tab ${c==='events'?'on':''}" data-tab="events">Турниры</button>
-    <button class="tab ${c==='journal'?'on':''}" data-tab="journal">Дневник</button>
+    <button class="tab ${c==='dashboard'?'on':''}" data-tab="dashboard">Дашборд</button>
+    <button class="tab ${c==='events'?'on':''}" data-tab="events">Календарь</button>
+    <button class="tab ${c==='trainings'?'on':''}" data-tab="trainings">Тренировки</button>
     <button class="tab ${c==='stats'?'on':''}" data-tab="stats">Статы</button>
   </div>`;
 }
@@ -1089,24 +1331,54 @@ function viewTabs(){
 function renderSidebar(){
   const sb=document.getElementById('sidebar');
   if(!sb)return;
+  if(state.role===null){ sb.innerHTML=''; return }
   const c=state.route.name;
-  const mainTabs=['profile','events','journal','stats'];
-  const onTab=mainTabs.includes(c)?c:'';
-  sb.innerHTML=`
-    <div class="brand">
-      <div class="logo"><svg viewBox="0 0 40 40" fill="none" stroke="#d4af37" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 6 L10 16 M27 6 L30 16"/><circle cx="20" cy="24" r="10"/><circle cx="20" cy="24" r="5"/></svg></div>
-      <div class="name">Trophy</div>
-    </div>
-    <button class="s-item ${onTab==='profile'?'on':''}" data-tab="profile">Профиль</button>
-    <button class="s-item ${onTab==='events'?'on':''}" data-tab="events">Турниры</button>
-    <button class="s-item ${onTab==='journal'?'on':''}" data-tab="journal">Дневник</button>
-    <button class="s-item ${onTab==='stats'?'on':''}" data-tab="stats">Статы</button>
-    <div class="s-div"></div>
-    <button class="s-item ${c==='event-new'?'on':''}" data-go="event-new">+ Новый турнир</button>
-    <div class="s-sep"></div>
-    <button class="s-item ${c==='settings'?'on':''}" data-go="settings">Настройки</button>
-    <div class="s-foot">Trophy · v1<br/>работает оффлайн</div>
-  `;
+
+  // Меню тренера
+  if(state.role==='coach'){
+    const ath=currentAthlete();
+    sb.innerHTML=`
+      <div class="brand">
+        <div class="logo"><svg viewBox="0 0 40 40" fill="none" stroke="#d4af37" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 6 L10 16 M27 6 L30 16"/><circle cx="20" cy="24" r="10"/><circle cx="20" cy="24" r="5"/></svg></div>
+        <div class="name">Trophy</div>
+      </div>
+      ${ath ? `<div class="s-switch"><div class="s-switch-l">Сейчас просматриваю</div><div class="s-switch-n">${esc(ath.profile.firstName)} ${esc(ath.profile.lastName)}</div><button class="s-switch-back" data-go="coach-dashboard">← К команде</button></div>` : ''}
+      <button class="s-item ${c==='coach-dashboard'?'on':''}" data-go="coach-dashboard">Команда</button>
+      ${ath ? `
+        <div class="s-sub-label">Спортсмен</div>
+        <button class="s-item ${c==='dashboard'?'on':''}" data-tab="dashboard">Дашборд</button>
+        <button class="s-item ${c==='events'?'on':''}" data-tab="events">Календарь боев</button>
+        <button class="s-item ${c==='trainings'?'on':''}" data-tab="trainings">Тренировки</button>
+        <button class="s-item ${c==='weight'?'on':''}" data-tab="weight">Вес</button>
+        <button class="s-item ${c==='opponents'?'on':''}" data-tab="opponents">Соперники</button>
+        <button class="s-item ${c==='stats'?'on':''}" data-tab="stats">Статистика</button>
+      ` : ''}
+      <div class="s-div"></div>
+      <button class="s-item" data-go="athlete-add">+ Добавить спортсмена</button>
+      <div class="s-sep"></div>
+      <button class="s-item ${c==='settings'?'on':''}" data-go="settings">Настройки</button>
+      <div class="s-foot">Trophy · работает оффлайн</div>
+    `;
+  } else {
+    // Меню спортсмена
+    sb.innerHTML=`
+      <div class="brand">
+        <div class="logo"><svg viewBox="0 0 40 40" fill="none" stroke="#d4af37" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 6 L10 16 M27 6 L30 16"/><circle cx="20" cy="24" r="10"/><circle cx="20" cy="24" r="5"/></svg></div>
+        <div class="name">Trophy</div>
+      </div>
+      <button class="s-item ${c==='dashboard'?'on':''}" data-tab="dashboard">Дашборд</button>
+      <button class="s-item ${c==='events'?'on':''}" data-tab="events">Календарь боев</button>
+      <button class="s-item ${c==='trainings'?'on':''}" data-tab="trainings">Тренировки</button>
+      <button class="s-item ${c==='weight'?'on':''}" data-tab="weight">Вес</button>
+      <button class="s-item ${c==='opponents'?'on':''}" data-tab="opponents">Соперники</button>
+      <button class="s-item ${c==='stats'?'on':''}" data-tab="stats">Статистика</button>
+      <div class="s-div"></div>
+      <button class="s-item ${c==='event-new'?'on':''}" data-go="event-new">+ Новый турнир</button>
+      <div class="s-sep"></div>
+      <button class="s-item ${c==='settings'?'on':''}" data-go="settings">Настройки</button>
+      <div class="s-foot">Trophy · работает оффлайн</div>
+    `;
+  }
   sb.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>go(b.dataset.tab));
   sb.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
 }
@@ -1114,12 +1386,46 @@ function renderSidebar(){
 /* === Главный рендер === */
 function render(){
   const app=document.getElementById('app'),sh=document.getElementById('shell');
-  if(!state.profile){app.innerHTML=viewOnboarding();removeTabs();removeFab();bind();return}
+
+  // 1. Если роль не выбрана — экран выбора
+  if(state.role===null){
+    app.innerHTML=viewRolePick();
+    removeTabs();removeFab();
+    renderSidebar();bind();return;
+  }
+  // 2. Тренер без профиля — онбординг тренера
+  if(state.role==='coach' && !state.coach){
+    app.innerHTML=viewCoachOnboarding();
+    removeTabs();removeFab();
+    renderSidebar();bind();return;
+  }
+  // 3. Спортсмен без профиля — онбординг спортсмена
+  if(state.role==='athlete' && !state.profile){
+    app.innerHTML=viewOnboarding();
+    removeTabs();removeFab();
+    renderSidebar();bind();return;
+  }
+
+  // Редирект старых маршрутов
+  if(state.route.name==='profile') state.route={name:'dashboard',params:{}};
+  if(state.route.name==='journal') state.route={name:'dashboard',params:{}};
+
   const r=state.route;let html='',tabs=true,fab=false;
-  if(r.name==='profile'){html=viewProfile()}
-  else if(r.name==='events'){html=viewEvents();fab=true}
-  else if(r.name==='journal'){html=viewJournal()}
+
+  // Маршруты тренера
+  if(r.name==='coach-dashboard'){html=viewCoachDashboard();tabs=true}
+  else if(r.name==='athlete-add'){html=viewAthleteAdd();tabs=false}
+  // Маршруты спортсмена (и тренер в режиме просмотра спортсмена)
+  else if(r.name==='dashboard'){
+    if(state.role==='coach' && !currentAthlete()){html=viewCoachDashboard()}
+    else html=viewProfile(); // viewProfile пока = Дашборд (переименуем позже)
+  }
+  else if(r.name==='events'){html=viewEvents();fab=(state.role!=='coach')}
   else if(r.name==='stats'){html=viewStats()}
+  else if(r.name==='trainings'){html=viewTrainings?viewTrainings():('<div class="empty-state">Раздел «Тренировки» — в следующем обновлении.</div>')}
+  else if(r.name==='weight'){html=viewWeight?viewWeight():('<div class="empty-state">Раздел «Вес» — в следующем обновлении.</div>')}
+  else if(r.name==='opponents'){html=viewOpponents?viewOpponents():('<div class="empty-state">Раздел «Соперники» — в следующем обновлении.</div>')}
+  else if(r.name==='opponent'){html=viewOpponentDetail?viewOpponentDetail(r.params.name):'';tabs=false}
   else if(r.name==='event'){html=viewEventDetail(r.params.id);tabs=false}
   else if(r.name==='event-new'){html=viewEventForm('new');tabs=false}
   else if(r.name==='event-edit'){html=viewEventForm('edit',r.params.id);tabs=false}
@@ -1127,6 +1433,7 @@ function render(){
   else if(r.name==='fight-edit'){html=viewFightForm('edit',{id:r.params.id});tabs=false}
   else if(r.name==='settings'){html=viewSettings();tabs=false}
   else html=viewProfile();
+
   app.innerHTML=html;
   tabs?addTabs():removeTabs();
   fab?addFab():removeFab();
@@ -1141,7 +1448,48 @@ function removeFab(){document.querySelectorAll('#shell .fab').forEach(x=>x.remov
 /* === Биндеры === */
 function bind(){
   const app=document.getElementById('app');
-  app.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>history.length>1?history.back():go('profile'));
+  app.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>history.length>1?history.back():go(state.role==='coach' && !currentAthlete()?'coach-dashboard':'dashboard'));
+
+  // Выбор роли
+  app.querySelectorAll('[data-pick-role]').forEach(b=>b.onclick=()=>{
+    state.role=b.dataset.pickRole;
+    save();
+    render();
+  });
+  const roleImport=document.getElementById('role-import');
+  if(roleImport) roleImport.onclick=()=>{
+    const i=document.createElement('input');i.type='file';i.accept='application/json';
+    i.onchange=()=>{const f=i.files[0];if(!f)return;const fr=new FileReader();
+      fr.onload=()=>{try{
+        const d=JSON.parse(fr.result);
+        // Поддерживаем обе схемы (старую и новую)
+        if(d.athletes){
+          state.role=d.role||'athlete';state.coach=d.coach||null;state.athletes=d.athletes;state.currentAthleteId=d.currentAthleteId||(d.athletes[0]?.id);
+        } else if(d.profile){
+          const a={id:uid(),profile:d.profile,events:d.events||[],fights:d.fights||[],weights:d.weights||[],trainings:d.trainings||[],opponentNotes:{},goals:[]};
+          state.role='athlete';state.athletes=[a];state.currentAthleteId=a.id;
+        } else throw 0;
+        syncFromAthlete();save();toast('Импортировано');render();
+      }catch(e){toast('Ошибка импорта')}};
+      fr.readAsText(f);
+    };
+    i.click();
+  };
+
+  // Форма тренера
+  const coachForm=document.getElementById('coach-form');
+  if(coachForm) coachForm.onsubmit=e=>{
+    e.preventDefault();
+    const fd=new FormData(coachForm);
+    state.coach={firstName:fd.get('firstName'),lastName:fd.get('lastName'),club:fd.get('club'),city:fd.get('city'),sports:[fd.get('sport')]};
+    save();go('coach-dashboard');
+  };
+
+  // Клик по карточке спортсмена — переключение
+  app.querySelectorAll('[data-switch-athlete]').forEach(b=>b.onclick=()=>{
+    switchAthlete(b.dataset.switchAthlete);
+    go('dashboard');
+  });
   app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const n=b.dataset.go,id=b.dataset.id;id?go(n,{id}):go(n)});
   app.querySelectorAll('[data-go-event]').forEach(b=>b.onclick=()=>go('event',{id:b.dataset.goEvent}));
   app.querySelectorAll('[data-events-mode]').forEach(b=>b.onclick=()=>go('events',{mode:b.dataset.eventsMode}));
@@ -1155,10 +1503,33 @@ function bind(){
   app.querySelectorAll('[data-go-fight]').forEach(b=>b.onclick=()=>go('fight-edit',{id:b.dataset.goFight}));
 
   const ob=document.getElementById('ob-form');
-  if(ob)ob.onsubmit=e=>{e.preventDefault();const fd=new FormData(ob);const w=Number(fd.get('weightCategoryKg'));state.profile=Object.assign({},state.profile||{},{firstName:fd.get('firstName'),lastName:fd.get('lastName'),sport:fd.get('sport'),weightCategoryKg:w,weightCategoryName:WEIGHT_NAMES[w]||'',rank:fd.get('rank'),city:fd.get('city')||'',club:fd.get('club')||'',coach:fd.get('coach')||''});save();go('profile')};
+  if(ob)ob.onsubmit=e=>{
+    e.preventDefault();
+    const fd=new FormData(ob);
+    const w=Number(fd.get('weightCategoryKg'));
+    const payload={firstName:fd.get('firstName'),lastName:fd.get('lastName'),sport:fd.get('sport'),weightCategoryKg:w,weightCategoryName:WEIGHT_NAMES[w]||'',rank:fd.get('rank'),city:fd.get('city')||'',club:fd.get('club')||'',coach:fd.get('coach')||''};
+    // Тренер добавляет нового — создаём athlete. Спортсмен редактирует — правим свой профиль или создаёт первого.
+    if(state.role==='coach' && state.route.name==='athlete-add'){
+      const a=addAthlete(payload);
+      switchAthlete(a.id);
+      save();
+      go('coach-dashboard');
+      toast('Спортсмен добавлен');
+      return;
+    }
+    if(!currentAthlete()){
+      // Первый онбординг спортсмена — создаём первого athlete
+      const a=addAthlete(payload);
+      state.currentAthleteId=a.id;
+      syncFromAthlete();
+    } else {
+      state.profile=Object.assign({},state.profile||{},payload);
+    }
+    save();go('dashboard');
+  };
 
   const pf=document.getElementById('profile-form');
-  if(pf)pf.onsubmit=e=>{e.preventDefault();const fd=new FormData(pf);const w=Number(fd.get('weightCategoryKg'));Object.assign(state.profile,{firstName:fd.get('firstName'),lastName:fd.get('lastName'),sport:fd.get('sport'),weightCategoryKg:w,weightCategoryName:WEIGHT_NAMES[w]||'',rank:fd.get('rank'),city:fd.get('city'),club:fd.get('club'),coach:fd.get('coach')});save();toast('Сохранено');go('profile')};
+  if(pf)pf.onsubmit=e=>{e.preventDefault();const fd=new FormData(pf);const w=Number(fd.get('weightCategoryKg'));Object.assign(state.profile,{firstName:fd.get('firstName'),lastName:fd.get('lastName'),sport:fd.get('sport'),weightCategoryKg:w,weightCategoryName:WEIGHT_NAMES[w]||'',rank:fd.get('rank'),city:fd.get('city'),club:fd.get('club'),coach:fd.get('coach')});save();toast('Сохранено');go('dashboard')};
 
   const ef=document.getElementById('event-form');
   if(ef){
@@ -1182,11 +1553,47 @@ function bind(){
   app.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{const pl=Number(b.dataset.filter),first=state.events.filter(e=>e.place===pl).sort((a,b)=>b.date.localeCompare(a.date))[0];first?go('event',{id:first.id}):toast('Пока нет турниров с этим местом')});
 
   const ex=document.getElementById('export-json');
-  if(ex)ex.onclick=()=>{const data=JSON.stringify({profile:state.profile,events:state.events,fights:state.fights,weights:state.weights,trainings:state.trainings},null,2);const b=new Blob([data],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='trophy-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u)};
+  if(ex)ex.onclick=()=>{
+    syncToAthlete();
+    const data=JSON.stringify({role:state.role,coach:state.coach,currentAthleteId:state.currentAthleteId,athletes:state.athletes},null,2);
+    const b=new Blob([data],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');
+    a.href=u;a.download='trophy-backup-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);
+  };
   const im=document.getElementById('import-json');
-  if(im)im.onclick=()=>{const i=document.createElement('input');i.type='file';i.accept='application/json';i.onchange=()=>{const f=i.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{try{const d=JSON.parse(fr.result);if(!d.profile)throw 0;state.profile=d.profile;state.events=d.events||[];state.fights=d.fights||[];state.weights=d.weights||[];state.trainings=d.trainings||[];save();toast('Импортировано');go('profile')}catch(e){toast('Ошибка импорта')}};fr.readAsText(f)};i.click()};
+  if(im)im.onclick=()=>{
+    const i=document.createElement('input');i.type='file';i.accept='application/json';
+    i.onchange=()=>{const f=i.files[0];if(!f)return;const fr=new FileReader();
+      fr.onload=()=>{try{
+        const d=JSON.parse(fr.result);
+        if(d.athletes){
+          state.role=d.role||'athlete';state.coach=d.coach||null;state.athletes=d.athletes;
+          state.currentAthleteId=d.currentAthleteId||(d.athletes[0]?.id);
+        } else if(d.profile){
+          const a={id:uid(),profile:d.profile,events:d.events||[],fights:d.fights||[],weights:d.weights||[],trainings:d.trainings||[],opponentNotes:{},goals:[]};
+          state.role='athlete';state.coach=null;state.athletes=[a];state.currentAthleteId=a.id;
+        } else throw 0;
+        syncFromAthlete();save();toast('Импортировано');go(state.role==='coach'?'coach-dashboard':'dashboard');
+      }catch(e){toast('Ошибка импорта')}};
+      fr.readAsText(f);
+    };
+    i.click();
+  };
   const rs=document.getElementById('reset-all');
-  if(rs)rs.onclick=()=>modal('Удалить все данные?','Профиль, бои, вес и тренировки будут стёрты.',()=>{localStorage.removeItem(STORAGE_KEY);state.profile=null;state.events=[];state.fights=[];state.weights=[];state.trainings=[];go('profile')});
+  if(rs)rs.onclick=()=>modal('Удалить все данные?','Все спортсмены, их бои, вес и тренировки будут стёрты.',()=>{
+    localStorage.removeItem(STORAGE_KEY);
+    state.role=null;state.coach=null;state.currentAthleteId=null;state.athletes=[];
+    syncFromAthlete();
+    go('dashboard');
+  });
+
+  const switchRole=document.getElementById('switch-role');
+  if(switchRole) switchRole.onclick=()=>modal('Сменить роль?','Данные сохранятся. Можно переключиться в другой режим.',()=>{
+    state.role=state.role==='coach'?'athlete':'coach';
+    if(state.role==='coach' && !state.coach){ save(); render(); return; }
+    if(state.role==='athlete' && !currentAthlete() && state.athletes[0]){ state.currentAthleteId=state.athletes[0].id; syncFromAthlete(); }
+    save();go(state.role==='coach'?'coach-dashboard':'dashboard');
+  });
 }
 
 /* === Модалка / тост === */
@@ -1224,7 +1631,7 @@ function weightLogModal(){
 }
 
 /* === Модалка тренировки === */
-const TRAIN_TYPES=[{v:'technique',n:'Техника',e:'🥋'},{v:'sparring',n:'Спарринг',e:'🥊'},{v:'cardio',n:'Кардио',e:'🏃'},{v:'strength',n:'ОФП/сила',e:'🏋️'},{v:'recovery',n:'Восстановление',e:'🧘'}];
+const TRAIN_TYPES=[{v:'technique',n:'Техника',e:'Т'},{v:'sparring',n:'Спарринг',e:'С'},{v:'cardio',n:'Кардио',e:'К'},{v:'strength',n:'ОФП',e:'О'},{v:'recovery',n:'Восстан.',e:'В'}];
 function trainingLogModal(){
   const today=todayISO();
   const today_trainings = state.trainings.filter(t=>t.date===today);
@@ -1292,11 +1699,11 @@ function attachVoiceInput(textarea){
 }
 
 /* === History === */
-window.addEventListener('popstate',e=>{if(e.state&&e.state.route){state.route=e.state.route;render()}else{state.route={name:'profile',params:{}};render()}});
+window.addEventListener('popstate',e=>{if(e.state&&e.state.route){state.route=e.state.route;render()}else{state.route={name:state.role==='coach'?'coach-dashboard':'dashboard',params:{}};render()}});
 
 /* === Старт === */
 load();
-if(location.hash){const n=location.hash.slice(1);if(['profile','events','journal','stats','settings'].includes(n))state.route={name:n,params:{}}}
+if(location.hash){const n=location.hash.slice(1);if(['dashboard','coach-dashboard','events','trainings','weight','opponents','stats','settings'].includes(n))state.route={name:n,params:{}}}
 render();
 
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
