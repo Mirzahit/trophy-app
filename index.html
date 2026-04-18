@@ -139,6 +139,84 @@
   .streak .loss{background:var(--bg-subtle);color:#5a5a52}
   .streak .empty{background:transparent;border:1px dashed var(--border);color:var(--text-tertiary);cursor:default}
 
+  /* ===== «Сегодня» — главный экран ===== */
+  .hero-today{margin-top:18px;background:var(--bg-dark);color:var(--text-on-dark);border-radius:var(--r-lg);padding:24px;position:relative;overflow:hidden;cursor:pointer}
+  .hero-today:active{opacity:.95}
+  .hero-today .ring{position:absolute;right:-80px;top:-80px;width:240px;height:240px;border-radius:999px;border:1.5px solid rgba(212,175,55,.25);pointer-events:none}
+  .hero-today .ring::after{content:"";position:absolute;inset:40px;border-radius:999px;border:1.5px solid rgba(212,175,55,.14)}
+  .hero-today .badge{font-size:10.5px;letter-spacing:.5px;font-weight:500;text-transform:uppercase;color:var(--gold)}
+  .hero-today .hero-count{display:flex;align-items:baseline;gap:10px;margin-top:14px}
+  .hero-today .hero-count .n{font-size:64px;line-height:.9;font-weight:500;letter-spacing:-3px;font-feature-settings:"tnum" 1}
+  .hero-today .hero-count .n.gold{color:var(--gold)}
+  .hero-today .hero-count .n.silver{color:var(--silver)}
+  .hero-today .hero-count .n.bronze{color:var(--bronze)}
+  .hero-today .hero-count .unit{font-size:13px;font-weight:500;letter-spacing:.3px;text-transform:uppercase;color:var(--text-on-dark-dim)}
+  .hero-today .hero-title{margin-top:14px;font-size:18px;font-weight:500;line-height:1.25}
+  .hero-today .hero-sub{margin-top:6px;font-size:12.5px;color:var(--text-on-dark-dim)}
+  .hero-today .hero-chip{display:inline-block;margin-top:14px;background:rgba(212,175,55,.15);color:var(--gold);padding:7px 12px;border-radius:999px;font-size:12px;font-weight:500;border:1px solid rgba(212,175,55,.3)}
+  .hero-today.empty .hero-title{font-size:22px;margin-top:16px}
+  .hero-today.last .hero-chip{background:transparent;border-color:rgba(247,244,236,.2);color:var(--text-on-dark-dim)}
+
+  /* Грид вес+тренировки */
+  .today-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .t-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px 16px;display:block;text-align:left;cursor:pointer;width:100%}
+  .t-card:hover{border-color:var(--text-tertiary)}
+  .t-card .tc-label{font-size:10.5px;letter-spacing:.3px;color:var(--text-secondary);text-transform:uppercase;font-weight:500}
+  .t-card .tc-main{margin-top:10px;display:flex;align-items:baseline;gap:8px}
+  .t-card .tc-v{font-size:24px;font-weight:500;letter-spacing:-.8px;font-feature-settings:"tnum" 1}
+  .t-card .tc-v sup{font-size:12px;margin-left:2px;color:var(--text-secondary);font-weight:500}
+  .t-card .tc-unit{font-size:12px;color:var(--text-secondary)}
+  .t-card .tc-delta{font-size:12.5px;font-weight:500;padding:2px 8px;border-radius:999px;font-feature-settings:"tnum" 1}
+  .t-card .tc-delta.ok{background:#e0f0e6;color:var(--success)}
+  .t-card .tc-delta.warn{background:#fdf4e0;color:#a07508}
+  .t-card .tc-delta.bad{background:#fce5e5;color:var(--danger)}
+  .t-card .tc-sub{margin-top:4px;font-size:11.5px;color:var(--text-tertiary)}
+  .t-card.weight.ok{border-left:3px solid var(--success)}
+  .t-card.weight.warn{border-left:3px solid #d4a43b}
+  .t-card.weight.bad{border-left:3px solid var(--danger)}
+
+  /* Фокус */
+  .focus{margin-top:18px;background:var(--bg-dark);color:var(--text-on-dark);border-radius:var(--r-md);padding:16px 18px}
+  .focus .label{color:var(--gold)!important}
+  .focus .row .label:last-child{color:var(--text-on-dark-dim)!important}
+  .focus-list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+  .focus .f-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(247,244,236,.08)}
+  .focus .f-item:last-child{border-bottom:none}
+  .focus .f-t{font-size:14px;font-weight:500}
+  .focus .f-c{font-size:11.5px;color:var(--text-on-dark-dim)}
+
+  /* Компактные stats */
+  .stats-row.compact{display:grid;grid-template-columns:repeat(4,1fr);margin-top:20px;gap:8px;padding:14px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .stats-row.compact .stat{gap:4px}
+  .stats-row.compact .stat .v{font-size:19px;letter-spacing:-.6px}
+  .stats-row.compact .stat .k{font-size:9.5px;letter-spacing:.2px}
+  @media (min-width:1024px){.stats-row.compact{max-width:560px}}
+
+  /* Timeline */
+  .timeline{margin-top:20px}
+  .tl-list{margin-top:10px;display:flex;flex-direction:column;gap:4px}
+  .tl-row{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:10px;cursor:pointer}
+  .tl-row:hover{background:var(--bg-subtle)}
+  .tl-date{flex:0 0 40px;text-align:center}
+  .tl-date .tl-d{font-size:17px;font-weight:500;letter-spacing:-.5px;line-height:1;font-feature-settings:"tnum" 1}
+  .tl-date .tl-m{font-size:10px;text-transform:uppercase;color:var(--text-secondary);margin-top:3px;letter-spacing:.2px;font-weight:500}
+  .tl-main{flex:1;min-width:0}
+  .tl-main .tl-t{font-size:13.5px;font-weight:500}
+  .tl-main .tl-s{font-size:11.5px;color:var(--text-secondary);margin-top:2px}
+  .tl-r{flex:0 0 auto}
+  .tl-place{font-size:20px;font-weight:500;font-feature-settings:"tnum" 1;text-align:right}
+  .tl-place.gold{color:var(--gold)} .tl-place.silver{color:var(--silver)} .tl-place.bronze{color:var(--bronze)}
+  .tl-up{font-size:18px;color:var(--gold);opacity:.6}
+
+  /* Голосовой ввод */
+  .voice-btn{position:absolute;right:10px;bottom:10px;width:32px;height:32px;border-radius:999px;background:var(--bg-primary);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+  .voice-btn:hover{border-color:var(--text-primary)}
+  .voice-btn.rec{background:var(--danger);border-color:var(--danger)}
+  .voice-btn.rec svg{stroke:#fff}
+  .voice-btn svg{width:14px;height:14px;stroke:var(--text-secondary);stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .note{position:relative}
+  .note .bar{top:14px!important}
+
   .empty-state{padding:32px 12px;text-align:center;color:var(--text-secondary)}
   .empty-state .e-icon{width:56px;height:56px;margin:0 auto 14px;opacity:.4}
   .empty-state .e-icon svg{width:100%;height:100%}
@@ -324,6 +402,15 @@
   .modal p{font-size:13.5px;color:var(--text-secondary);line-height:1.5;margin-bottom:18px}
   .modal .actions{display:flex;flex-direction:column;gap:8px}
 
+  /* Тренировка — типы */
+  .tr-types{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  @media (min-width:400px){.tr-types{grid-template-columns:repeat(5,1fr)}}
+  .tr-type{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border:1px solid var(--border);background:var(--bg-secondary);border-radius:10px;font-size:11px;font-weight:500;cursor:pointer;color:var(--text-secondary)}
+  .tr-type .tr-e{font-size:18px;line-height:1}
+  .tr-type.on{background:var(--bg-dark);color:var(--text-on-dark);border-color:var(--bg-dark)}
+  .tr-done{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px;margin-top:6px;font-size:12.5px}
+  .tr-done .x{margin-left:auto;color:var(--text-tertiary);font-size:16px;cursor:pointer;background:none;border:none}
+
   .toast{position:fixed;bottom:120px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#f7f4ec;padding:10px 18px;border-radius:999px;font-size:13.5px;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:in .2s ease}
   @keyframes in{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
 </style>
@@ -347,10 +434,10 @@ const MONTHS_F=['января','февраля','марта','апреля','м�
 
 /* === Хранилище === */
 const STORAGE_KEY='trophy.v1';
-let state={profile:null,events:[],fights:[],route:{name:'profile',params:{}}};
+let state={profile:null,events:[],fights:[],weights:[],trainings:[],route:{name:'profile',params:{}}};
 
-function load(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const d=JSON.parse(r);state.profile=d.profile||null;state.events=d.events||[];state.fights=d.fights||[]}}catch(e){}}
-function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify({profile:state.profile,events:state.events,fights:state.fights}))}
+function load(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const d=JSON.parse(r);state.profile=d.profile||null;state.events=d.events||[];state.fights=d.fights||[];state.weights=d.weights||[];state.trainings=d.trainings||[]}}catch(e){}}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify({profile:state.profile,events:state.events,fights:state.fights,weights:state.weights,trainings:state.trainings}))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 
 /* === Утилиты === */
@@ -372,6 +459,40 @@ function medals(){let g=0,s=0,b=0;state.events.forEach(e=>{if(e.place===1)g++;el
 function winPct(){const r=record();return r.total?Math.round(r.w/r.total*100):0}
 function doneEvents(){return state.events.filter(e=>e.status!=='upcoming').length}
 function lastFights(n=10){return allFightsSorted().slice(0,n).reverse()}
+
+/* Следующий турнир и сколько до него */
+function nextEvent(){return state.events.filter(e=>e.status==='upcoming').sort((a,b)=>a.date.localeCompare(b.date))[0]||null}
+function lastEvent(){return state.events.filter(e=>e.status!=='upcoming').sort((a,b)=>b.date.localeCompare(a.date))[0]||null}
+function daysTo(iso){return Math.ceil((new Date(iso).getTime()-Date.now())/86400000)}
+
+/* Вес: последняя запись, среднее, trend */
+function todayISO(){return new Date().toISOString().slice(0,10)}
+function latestWeight(){return state.weights.slice().sort((a,b)=>b.date.localeCompare(a.date))[0]||null}
+function weightLogged(date){return !!state.weights.find(w=>w.date===date)}
+
+/* Streak тренировок: подряд идущие дни с тренировками, начиная с сегодня */
+function trainingStreak(){
+  const dates=new Set(state.trainings.map(t=>t.date));
+  let streak=0;
+  const today=new Date();
+  today.setHours(0,0,0,0);
+  for(let i=0;i<365;i++){
+    const d=new Date(today);d.setDate(today.getDate()-i);
+    const iso=d.toISOString().slice(0,10);
+    if(dates.has(iso)) streak++;
+    else if(i>0) break; // если сегодня ещё не тренировался — streak не обнуляем, но и не увеличиваем
+  }
+  return streak;
+}
+function trainingToday(){return state.trainings.filter(t=>t.date===todayISO())}
+
+/* Топ тегов-фокус за последние 10 боёв */
+function focusTags(){
+  const last10=allFightsSorted().slice(0,10);
+  const count={};
+  last10.forEach(f=>(f.tags||[]).forEach(t=>count[t]=(count[t]||0)+1));
+  return Object.entries(count).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([t,c])=>({t,c}));
+}
 function repeatingTags(excl,N=3){const s=allFightsSorted().filter(f=>f.id!==excl).slice(0,N);if(s.length<N)return[];const c={};s.forEach(f=>(f.tags||[]).forEach(t=>c[t]=(c[t]||0)+1));return Object.entries(c).filter(([,k])=>k>=N).map(([t])=>t)}
 
 /* === Router === */
@@ -418,35 +539,134 @@ function viewOnboarding(){
 }
 
 function viewProfile(){
-  const p=state.profile,r=record(),m=medals(),pct=winPct(),last=lastFights(10);
+  const p=state.profile,r=record(),m=medals(),pct=winPct();
+  const nxt=nextEvent(), lst=lastEvent();
+  const w=latestWeight(), wToday=weightLogged(todayISO());
+  const cat=p.weightCategoryKg;
+  const weightDelta = w ? (w.kg - cat) : null;
+  const weightStatus = w ? (w.kg<=cat ? 'ok' : weightDelta<=2 ? 'warn' : 'bad') : 'none';
+
+  const focus=focusTags();
+  const streak=trainingStreak();
+  const trainedToday = trainingToday().length>0;
+  const recentEvents = state.events.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+
+  // Hero: следующий турнир — главный герой
+  let heroHtml='';
+  if(nxt){
+    const d=daysTo(nxt.date);
+    const weighIn = nxt.weighIn ? Number(nxt.weighIn) : null;
+    const targetCut = w && weighIn ? w.kg - weighIn : null;
+    heroHtml = `
+      <div class="hero-today" data-go-event="${nxt.id}">
+        <div class="ring"></div>
+        <div class="badge">Ближайший турнир</div>
+        <div class="hero-count"><span class="n num">${d>=0?d:0}</span><span class="unit">${plural(Math.max(0,d),'день','дня','дней')}</span></div>
+        <div class="hero-title">${esc(nxt.title)}</div>
+        <div class="hero-sub">${fmtDate(nxt.date)} · ${esc(nxt.city||levelName(nxt.level))}</div>
+        ${targetCut!=null && targetCut>0 ? `<div class="hero-chip">согнать ${fmtN(targetCut)} кг · по ${fmtN(targetCut/Math.max(1,d))} кг/день</div>` : ''}
+      </div>
+    `;
+  } else if(lst){
+    const pc=lst.place===1?'gold':lst.place===2?'silver':lst.place===3?'bronze':'';
+    const pt=lst.place===1?'Золото':lst.place===2?'Серебро':lst.place===3?'Бронза':lst.place?lst.place+'-е место':'—';
+    heroHtml = `
+      <div class="hero-today last" data-go-event="${lst.id}">
+        <div class="badge">Последний турнир</div>
+        <div class="hero-count"><span class="n num ${pc}">${lst.place||'—'}</span><span class="unit">${pt}</span></div>
+        <div class="hero-title">${esc(lst.title)}</div>
+        <div class="hero-sub">${fmtDate(lst.date)}</div>
+        <div class="hero-chip">+ Запланировать следующий</div>
+      </div>
+    `;
+  } else {
+    heroHtml = `
+      <div class="hero-today empty" data-go="event-new">
+        <div class="badge">Старт</div>
+        <div class="hero-title" style="margin-top:18px">Добавь первый турнир</div>
+        <div class="hero-sub">Дальше всё соберётся само</div>
+      </div>
+    `;
+  }
+
   return `${sbar()}
     <div class="row">
-      <span class="label">Атлет</span>
+      <div>
+        <span class="label">Сегодня</span>
+        <h1 class="name" style="margin-top:4px">${esc(p.firstName)} ${esc(p.lastName)}</h1>
+        <div class="subtitle">${esc(sportName(p.sport))} · до ${fmtN(cat)} кг · ${esc(p.city||'—')}</div>
+      </div>
       <button class="btn-link" data-go="settings">Настройки</button>
     </div>
-    <h1 class="name">${esc(p.firstName)} ${esc(p.lastName)}</h1>
-    <div class="subtitle">${esc(sportName(p.sport))} · до ${fmtN(p.weightCategoryKg)} кг · ${esc(p.city||'—')}</div>
-    <div class="divider"></div>
-    <div class="stats-row">
-      <div class="stat"><div class="v num">${doneEvents()}</div><div class="k">Турниры</div></div>
+
+    ${heroHtml}
+
+    <div class="today-grid">
+      <button class="t-card weight ${weightStatus}" data-action="weight-log">
+        <div class="tc-label">Вес сегодня</div>
+        <div class="tc-main">
+          ${w ? `<span class="tc-v num">${fmtN(w.kg)}<sup>кг</sup></span>${weightDelta!=null?`<span class="tc-delta ${weightStatus}">${weightDelta>0?'+':''}${fmtN(weightDelta)}</span>`:''}`
+              : `<span class="tc-v" style="font-size:16px;color:var(--text-secondary)">записать</span>`}
+        </div>
+        <div class="tc-sub">${wToday?'Записано сегодня':w?'Последняя: '+fmtDateShort(w.date):'Лимит '+fmtN(cat)+' кг'}</div>
+      </button>
+
+      <button class="t-card train" data-action="training-log">
+        <div class="tc-label">Тренировки</div>
+        <div class="tc-main">
+          <span class="tc-v num">${streak}</span>
+          <span class="tc-unit">${streak===1?'день':plural(streak,'день','дня','дней')} подряд</span>
+        </div>
+        <div class="tc-sub">${trainedToday?'Сегодня отмечено':'Отметить тренировку'}</div>
+      </button>
+    </div>
+
+    ${focus.length ? `
+      <div class="focus">
+        <div class="row"><span class="label" style="color:var(--gold)">Фокус</span><span class="label" style="text-transform:none">из последних боёв</span></div>
+        <div class="focus-list">
+          ${focus.map(({t,c})=>`<div class="f-item"><div class="f-t">${esc(t)}</div><div class="f-c">${c} бо${plural(c,'й','я','ёв')}</div></div>`).join('')}
+        </div>
+      </div>
+    ` : ''}
+
+    <div class="stats-row compact">
       <div class="stat"><div class="v num">${r.w}–${r.l}${r.d?('–'+r.d):''}</div><div class="k">Рекорд</div></div>
       <div class="stat"><div class="v num">${pct}<sup>%</sup></div><div class="k">Побед</div></div>
+      <div class="stat"><div class="v num">${doneEvents()}</div><div class="k">Турниры</div></div>
+      <div class="stat"><div class="v num">${m.g}·${m.s}·${m.b}</div><div class="k">З·С·Б</div></div>
     </div>
-    <div class="divider"></div>
-    <div class="row">
-      <span class="label">Трофейный зал</span>
-      <span class="label" style="letter-spacing:.2px;text-transform:none">${m.total?m.total+' медал'+plural(m.total,'ь','и','ей'):'пока пусто'}</span>
-    </div>
-    <div class="trophy-grid">
-      <div class="trophy gold"   data-filter="1"><div class="medal">${medalIcon('#d4af37')}</div><div class="t-name">Золото</div><div class="t-count">${m.g}</div></div>
-      <div class="trophy silver" data-filter="2"><div class="medal">${medalIcon('#b8b6b0')}</div><div class="t-name">Серебро</div><div class="t-count">${m.s}</div></div>
-      <div class="trophy bronze" data-filter="3"><div class="medal">${medalIcon('#cd7f32')}</div><div class="t-name">Бронза</div><div class="t-count">${m.b}</div></div>
-    </div>
-    <div class="label" style="margin-top:22px">Последние 10 боёв</div>
-    <div class="streak">
-      ${Array.from({length:10},(_,i)=>{const f=last[i];if(!f)return'<div class="cell empty">·</div>';const cls=f.result==='win'?'win':'loss';const txt=f.result==='win'?'П':(f.result==='loss'?'Пр':'Н');return `<div class="cell ${cls}" data-go-fight="${f.id}">${txt}</div>`}).join('')}
-    </div>
-    ${state.events.length===0?`<div class="empty-state" style="margin-top:24px"><div class="e-icon">${medalIcon('#d4af37')}</div><div class="e-title">Пока пусто</div><div class="e-sub">Добавь первый турнир — статистика соберётся сама.</div><button class="btn btn-primary" style="margin-top:16px;max-width:240px" data-go="event-new">Добавить турнир</button></div>`:''}
+
+    ${recentEvents.length ? `
+      <div class="timeline">
+        <div class="row"><span class="label">История</span><button class="btn-link" data-tab="events">все →</button></div>
+        <div class="tl-list">
+          ${recentEvents.map(e=>{
+            const fs=eventFights(e.id);
+            const w=fs.filter(x=>x.result==='win').length, l=fs.filter(x=>x.result==='loss').length;
+            const pc=e.place===1?'gold':e.place===2?'silver':e.place===3?'bronze':'';
+            const isUp=e.status==='upcoming';
+            return `<div class="tl-row" data-go-event="${e.id}">
+              <div class="tl-date"><div class="tl-d num">${fmtDay(e.date)}</div><div class="tl-m">${fmtMon(e.date)}</div></div>
+              <div class="tl-main">
+                <div class="tl-t">${esc(e.title)}</div>
+                <div class="tl-s">${isUp?'запланирован':(fs.length?w+'–'+l+' · ':'')+levelName(e.level)}</div>
+              </div>
+              <div class="tl-r">
+                ${isUp ? `<div class="tl-up">→</div>` : `<div class="tl-place ${pc}">${e.place||'—'}</div>`}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    ` : `
+      <div class="empty-state" style="margin-top:24px">
+        <div class="e-icon">${medalIcon('#d4af37')}</div>
+        <div class="e-title">Пока пусто</div>
+        <div class="e-sub">Добавь первый турнир — статистика соберётся сама.</div>
+        <button class="btn btn-primary" style="margin-top:16px;max-width:240px" data-go="event-new">Добавить турнир</button>
+      </div>
+    `}
   `;
 }
 
@@ -926,6 +1146,12 @@ function bind(){
   app.querySelectorAll('[data-go-event]').forEach(b=>b.onclick=()=>go('event',{id:b.dataset.goEvent}));
   app.querySelectorAll('[data-events-mode]').forEach(b=>b.onclick=()=>go('events',{mode:b.dataset.eventsMode}));
   app.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>go('stats',{period:b.dataset.period}));
+  app.querySelectorAll('[data-action="weight-log"]').forEach(b=>b.onclick=e=>{e.preventDefault();weightLogModal()});
+  app.querySelectorAll('[data-action="training-log"]').forEach(b=>b.onclick=e=>{e.preventDefault();trainingLogModal()});
+  // tab по клику (для «все →»)
+  app.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>go(b.dataset.tab));
+  // Голосовой ввод на разборе боя
+  app.querySelectorAll('.note textarea').forEach(ta=>attachVoiceInput(ta));
   app.querySelectorAll('[data-go-fight]').forEach(b=>b.onclick=()=>go('fight-edit',{id:b.dataset.goFight}));
 
   const ob=document.getElementById('ob-form');
@@ -956,16 +1182,114 @@ function bind(){
   app.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{const pl=Number(b.dataset.filter),first=state.events.filter(e=>e.place===pl).sort((a,b)=>b.date.localeCompare(a.date))[0];first?go('event',{id:first.id}):toast('Пока нет турниров с этим местом')});
 
   const ex=document.getElementById('export-json');
-  if(ex)ex.onclick=()=>{const data=JSON.stringify({profile:state.profile,events:state.events,fights:state.fights},null,2);const b=new Blob([data],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='trophy-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u)};
+  if(ex)ex.onclick=()=>{const data=JSON.stringify({profile:state.profile,events:state.events,fights:state.fights,weights:state.weights,trainings:state.trainings},null,2);const b=new Blob([data],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='trophy-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u)};
   const im=document.getElementById('import-json');
-  if(im)im.onclick=()=>{const i=document.createElement('input');i.type='file';i.accept='application/json';i.onchange=()=>{const f=i.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{try{const d=JSON.parse(fr.result);if(!d.profile)throw 0;state.profile=d.profile;state.events=d.events||[];state.fights=d.fights||[];save();toast('Импортировано');go('profile')}catch(e){toast('Ошибка импорта')}};fr.readAsText(f)};i.click()};
+  if(im)im.onclick=()=>{const i=document.createElement('input');i.type='file';i.accept='application/json';i.onchange=()=>{const f=i.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{try{const d=JSON.parse(fr.result);if(!d.profile)throw 0;state.profile=d.profile;state.events=d.events||[];state.fights=d.fights||[];state.weights=d.weights||[];state.trainings=d.trainings||[];save();toast('Импортировано');go('profile')}catch(e){toast('Ошибка импорта')}};fr.readAsText(f)};i.click()};
   const rs=document.getElementById('reset-all');
-  if(rs)rs.onclick=()=>modal('Удалить все данные?','Профиль и все бои будут стёрты.',()=>{localStorage.removeItem(STORAGE_KEY);state.profile=null;state.events=[];state.fights=[];go('profile')});
+  if(rs)rs.onclick=()=>modal('Удалить все данные?','Профиль, бои, вес и тренировки будут стёрты.',()=>{localStorage.removeItem(STORAGE_KEY);state.profile=null;state.events=[];state.fights=[];state.weights=[];state.trainings=[];go('profile')});
 }
 
 /* === Модалка / тост === */
 function modal(t,txt,ok){const el=document.createElement('div');el.className='modal-bg';el.innerHTML=`<div class="modal"><h3>${esc(t)}</h3><p>${esc(txt)}</p><div class="actions"><button class="btn btn-danger" id="m-ok">Удалить</button><button class="btn btn-ghost" id="m-cancel">Отмена</button></div></div>`;document.body.appendChild(el);el.querySelector('#m-ok').onclick=()=>{el.remove();ok()};el.querySelector('#m-cancel').onclick=()=>el.remove();el.onclick=e=>{if(e.target===el)el.remove()}}
 function toast(m){const el=document.createElement('div');el.className='toast';el.textContent=m;document.body.appendChild(el);setTimeout(()=>el.remove(),1800)}
+
+/* === Модалка веса === */
+function weightLogModal(){
+  const today=todayISO();
+  const existing = state.weights.find(w=>w.date===today);
+  const last = latestWeight();
+  const placeholder = existing?fmtN(existing.kg):(last?fmtN(last.kg):'74,8');
+  const el=document.createElement('div');
+  el.className='modal-bg';
+  el.innerHTML=`<div class="modal">
+    <h3>${existing?'Обновить вес':'Записать вес'}</h3>
+    <p>Сегодня, ${fmtDateShort(today)}${last&&!existing?' · последний замер '+fmtN(last.kg)+' кг ('+fmtDateShort(last.date)+')':''}</p>
+    <form id="w-form">
+      <div class="field"><label>Вес, кг</label><input name="kg" type="text" inputmode="decimal" required autofocus value="${existing?fmtN(existing.kg):''}" placeholder="${placeholder}"/></div>
+      <div class="actions"><button type="submit" class="btn btn-primary">Сохранить</button>${existing?'<button type="button" class="btn-subtle-danger" id="w-del">Удалить запись</button>':'<button type="button" class="btn btn-ghost" id="w-cancel">Отмена</button>'}</div>
+    </form>
+  </div>`;
+  document.body.appendChild(el);
+  el.onclick=e=>{if(e.target===el)el.remove()};
+  const cancel=el.querySelector('#w-cancel');if(cancel)cancel.onclick=()=>el.remove();
+  const del=el.querySelector('#w-del');if(del)del.onclick=()=>{state.weights=state.weights.filter(w=>w.date!==today);save();el.remove();render();toast('Удалено')};
+  el.querySelector('#w-form').onsubmit=ev=>{
+    ev.preventDefault();
+    const kg=Number(String(new FormData(ev.target).get('kg')).replace(',','.'));
+    if(!kg||kg<30||kg>200){toast('Некорректный вес');return}
+    if(existing) existing.kg=kg;
+    else state.weights.push({id:uid(),date:today,kg});
+    save();el.remove();render();toast('Сохранено');
+  };
+}
+
+/* === Модалка тренировки === */
+const TRAIN_TYPES=[{v:'technique',n:'Техника',e:'🥋'},{v:'sparring',n:'Спарринг',e:'🥊'},{v:'cardio',n:'Кардио',e:'🏃'},{v:'strength',n:'ОФП/сила',e:'🏋️'},{v:'recovery',n:'Восстановление',e:'🧘'}];
+function trainingLogModal(){
+  const today=todayISO();
+  const today_trainings = state.trainings.filter(t=>t.date===today);
+  const el=document.createElement('div');
+  el.className='modal-bg';
+  el.innerHTML=`<div class="modal">
+    <h3>Тренировка</h3>
+    <p>Сегодня, ${fmtDateShort(today)}${today_trainings.length?' · уже отмечено: '+today_trainings.length:''}</p>
+    <form id="tr-form">
+      <div class="field"><label>Тип</label>
+        <div class="tr-types">${TRAIN_TYPES.map(t=>`<button type="button" class="tr-type" data-type="${t.v}"><span class="tr-e">${t.e}</span>${t.n}</button>`).join('')}</div>
+        <input type="hidden" name="type" required/>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Длительность, мин</label><input name="durationMin" type="number" min="10" max="360" value="90"/></div>
+        <div class="field"><label>Ощущения 1–5</label>
+          <select name="feel"><option value="3" selected>3 — норм</option><option value="5">5 — отлично</option><option value="4">4 — хорошо</option><option value="2">2 — так себе</option><option value="1">1 — тяжело</option></select>
+        </div>
+      </div>
+      <div class="field"><label>Заметка (опц.)</label><input name="note" placeholder="Что отрабатывали"/></div>
+      <div class="actions"><button type="submit" class="btn btn-primary">Записать</button><button type="button" class="btn btn-ghost" id="tr-cancel">Отмена</button></div>
+    </form>
+    ${today_trainings.length?`<div style="margin-top:14px"><div class="label">Сегодня</div>${today_trainings.map(t=>{const typ=TRAIN_TYPES.find(x=>x.v===t.type)||{n:t.type,e:'•'};return `<div class="tr-done"><span>${typ.e}</span> ${esc(typ.n)} · ${t.durationMin} мин${t.note?' · '+esc(t.note):''} <button class="x" data-del-tr="${t.id}">×</button></div>`}).join('')}</div>`:''}
+  </div>`;
+  document.body.appendChild(el);
+  el.onclick=e=>{if(e.target===el)el.remove()};
+  el.querySelector('#tr-cancel').onclick=()=>el.remove();
+  const typeInput=el.querySelector('input[name="type"]');
+  el.querySelectorAll('.tr-type').forEach(b=>b.onclick=()=>{el.querySelectorAll('.tr-type').forEach(x=>x.classList.remove('on'));b.classList.add('on');typeInput.value=b.dataset.type});
+  el.querySelectorAll('[data-del-tr]').forEach(b=>b.onclick=()=>{state.trainings=state.trainings.filter(t=>t.id!==b.dataset.delTr);save();el.remove();render();toast('Удалено')});
+  el.querySelector('#tr-form').onsubmit=ev=>{
+    ev.preventDefault();
+    const fd=new FormData(ev.target);
+    if(!fd.get('type')){toast('Выбери тип');return}
+    state.trainings.push({id:uid(),date:today,type:fd.get('type'),durationMin:Number(fd.get('durationMin'))||60,feel:Number(fd.get('feel'))||3,note:fd.get('note')||''});
+    save();el.remove();render();toast('Записано');
+  };
+}
+
+/* === Голосовой ввод === */
+function attachVoiceInput(textarea){
+  if(!window.SpeechRecognition && !window.webkitSpeechRecognition) return;
+  const wrap = textarea.parentNode;
+  if(!wrap || wrap.querySelector('.voice-btn')) return;
+  wrap.style.position='relative';
+  const btn=document.createElement('button');
+  btn.type='button'; btn.className='voice-btn'; btn.title='Голосовой ввод';
+  btn.innerHTML=`<svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>`;
+  wrap.appendChild(btn);
+  let rec=null, active=false;
+  btn.onclick=()=>{
+    if(active){try{rec.stop()}catch(e){}return}
+    const R = window.SpeechRecognition || window.webkitSpeechRecognition;
+    rec = new R();
+    rec.lang='ru-RU'; rec.continuous=true; rec.interimResults=false;
+    rec.onresult=e=>{
+      let txt='';
+      for(let i=e.resultIndex;i<e.results.length;i++) if(e.results[i].isFinal) txt+=e.results[i][0].transcript+' ';
+      if(txt){textarea.value=(textarea.value?textarea.value+' ':'')+txt.trim(); textarea.dispatchEvent(new Event('input'))}
+    };
+    rec.onend=()=>{active=false;btn.classList.remove('rec')};
+    rec.onerror=()=>{active=false;btn.classList.remove('rec');toast('Микрофон недоступен')};
+    try{rec.start();active=true;btn.classList.add('rec')}catch(e){toast('Не удалось запустить')}
+  };
+}
 
 /* === History === */
 window.addEventListener('popstate',e=>{if(e.state&&e.state.route){state.route=e.state.route;render()}else{state.route={name:'profile',params:{}};render()}});
