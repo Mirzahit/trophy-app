@@ -390,6 +390,52 @@
   .insight .h{font-size:10.5px;letter-spacing:.3px;text-transform:uppercase;font-weight:500;color:var(--gold);margin-bottom:10px}
   .insight p{font-size:13.5px;line-height:1.6}
 
+  /* Раздел Тренировки */
+  .streak-big{background:var(--bg-dark);color:var(--text-on-dark);border-radius:var(--r-lg);padding:24px 24px 22px;text-align:left;position:relative;overflow:hidden}
+  .streak-big::before{content:"";position:absolute;left:0;top:20px;bottom:20px;width:3px;background:var(--gold);border-radius:0 2px 2px 0}
+  .streak-big .sb-label{font-size:10.5px;letter-spacing:.3px;text-transform:uppercase;color:var(--gold);font-weight:500}
+  .streak-big .sb-value{font-size:68px;font-weight:500;letter-spacing:-3px;line-height:.9;margin-top:10px;font-feature-settings:"tnum" 1}
+  .streak-big .sb-unit{font-size:13px;color:var(--text-on-dark-dim);margin-top:6px}
+  .streak-big .btn-primary{background:var(--gold);color:#1a1a1a}
+
+  .day-bars{display:flex;gap:3px;align-items:flex-end;height:52px;margin-top:10px}
+  .day-bars .db-col{flex:1;min-width:0}
+  .day-bars .db-wrap{position:relative;height:44px;display:flex;flex-direction:column;justify-content:flex-end}
+  .day-bars .db-bar{width:100%;background:var(--bg-dark);border-radius:2px 2px 0 0;min-height:2px}
+
+  .tr-history{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .tr-row{display:flex;align-items:center;justify-content:space-between;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 14px}
+  .tr-row-l{display:flex;align-items:center;gap:12px}
+  .tr-badge{width:32px;height:32px;border-radius:8px;background:var(--bg-dark);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500}
+  .tr-row .tr-t{font-size:13.5px;font-weight:500}
+  .tr-row .tr-s{font-size:11.5px;color:var(--text-secondary);margin-top:2px}
+  .tr-row .tr-feel{font-size:16px;font-weight:500;font-feature-settings:"tnum" 1}
+  .tr-row .tr-feel span{font-size:11px;color:var(--text-tertiary);margin-left:1px}
+
+  /* Раздел Вес */
+  .w-history{display:flex;flex-direction:column;gap:4px;margin-top:10px}
+  .w-row{display:grid;grid-template-columns:80px 1fr auto;gap:10px;align-items:center;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--r-md);cursor:pointer}
+  .w-row .w-d{font-size:12px;color:var(--text-secondary)}
+  .w-row .w-v{font-size:16px;font-weight:500;letter-spacing:-.3px}
+  .w-row .w-v sup{font-size:10px;color:var(--text-secondary);font-weight:500;margin-left:1px}
+  .w-row .w-dlt{font-size:11.5px;font-weight:500;padding:3px 9px;border-radius:999px;font-feature-settings:"tnum" 1}
+  .w-row .w-dlt.ok{background:#e0f0e6;color:var(--success)}
+  .w-row .w-dlt.warn{background:#fdf4e0;color:#a07508}
+  .w-row .w-dlt.bad{background:#fce5e5;color:var(--danger)}
+
+  /* Соперники */
+  .op-list{display:flex;flex-direction:column;gap:8px}
+  @media (min-width:1024px){.op-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}}
+  .op-card{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 16px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--r-md);cursor:pointer;transition:border-color .1s}
+  .op-card:hover{border-color:var(--text-primary)}
+  .op-main{flex:1;min-width:0}
+  .op-n{font-size:14px;font-weight:500}
+  .op-s{font-size:11.5px;color:var(--text-secondary);margin-top:2px}
+  .op-score{font-size:17px;font-weight:500;letter-spacing:-.4px;font-feature-settings:"tnum" 1}
+  .op-score.win{color:var(--success)}
+  .op-score.loss{color:var(--danger)}
+  .op-score.draw{color:var(--text-secondary)}
+
   /* Выбор роли */
   .role-cards{display:flex;flex-direction:column;gap:12px}
   @media (min-width:768px){.role-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}}
@@ -1267,6 +1313,221 @@ function insight(){
   return candidates[0].t;
 }
 
+/* ===== Тренировки (отдельный раздел) ===== */
+function viewTrainings(){
+  const streak=trainingStreak();
+  const all=(state.trainings||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
+  // активность за 30 дней
+  const today=new Date(); today.setHours(0,0,0,0);
+  const dayBars=[];
+  for(let i=29;i>=0;i--){
+    const d=new Date(today);d.setDate(today.getDate()-i);
+    const iso=d.toISOString().slice(0,10);
+    const count=state.trainings.filter(t=>t.date===iso).length;
+    dayBars.push({iso,count,label:i===0?'сегодня':new Date(iso).getDate()});
+  }
+  const maxC=Math.max(1,...dayBars.map(d=>d.count));
+  // по типам
+  const byType={};
+  state.trainings.forEach(t=>{byType[t.type]=(byType[t.type]||0)+1});
+  const typeRows=Object.entries(byType).sort((a,b)=>b[1]-a[1]);
+  const totalT=state.trainings.length;
+
+  return `${sbar()}
+    <h1 class="name" style="font-size:24px">Тренировки</h1>
+    <div class="subtitle">Ритм и восстановление</div>
+
+    <div class="streak-big" style="margin-top:18px">
+      <div class="sb-label">Серия</div>
+      <div class="sb-value num">${streak}</div>
+      <div class="sb-unit">${streak===1?'день':plural(streak,'день','дня','дней')} подряд</div>
+      <button class="btn btn-primary" data-action="training-log" style="margin-top:16px;max-width:220px">Отметить тренировку</button>
+    </div>
+
+    ${dayBars.some(d=>d.count) ? `
+      <div class="label" style="margin-top:22px">Активность · 30 дней</div>
+      <div class="day-bars">
+        ${dayBars.map(d=>`<div class="db-col" title="${d.iso}: ${d.count}"><div class="db-wrap" style="height:44px"><div class="db-bar" style="height:${d.count/maxC*44}px"></div></div></div>`).join('')}
+      </div>
+    ` : ''}
+
+    ${typeRows.length ? `
+      <div class="bars"><h3>По типам тренировок</h3>
+        ${typeRows.map(([t,c])=>{
+          const tp=TRAIN_TYPES.find(x=>x.v===t)||{n:t};
+          const pct=Math.round(c/totalT*100);
+          return `<div class="bar-row"><div class="nm">${esc(tp.n)}</div><div class="tr"><div style="width:${pct}%"></div></div><div class="nu">${c}</div></div>`;
+        }).join('')}
+      </div>
+    ` : ''}
+
+    <div class="label" style="margin-top:22px">История · ${totalT} ${plural(totalT,'запись','записи','записей')}</div>
+    ${all.length ? `
+      <div class="tr-history">
+        ${all.slice(0,30).map(t=>{
+          const tp=TRAIN_TYPES.find(x=>x.v===t.type)||{n:t.type,e:'—'};
+          return `<div class="tr-row"><div class="tr-row-l"><span class="tr-badge">${tp.e}</span><div><div class="tr-t">${esc(tp.n)}</div><div class="tr-s">${fmtDateShort(t.date)} · ${t.durationMin} мин${t.note?' · '+esc(t.note):''}</div></div></div><div class="tr-feel">${t.feel||'—'}<span>/5</span></div></div>`;
+        }).join('')}
+      </div>
+    ` : `<div class="empty-state"><div class="e-sub">Ни одной тренировки не отмечено. Жми кнопку сверху.</div></div>`}
+  `;
+}
+
+/* ===== Вес (отдельный раздел) ===== */
+function viewWeight(){
+  const cat=state.profile?.weightCategoryKg||75;
+  const all=(state.weights||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const last90=all.filter(w=>{const d=new Date(w.date);return d>=new Date(Date.now()-90*86400000)});
+
+  const today=todayISO();
+  const existingToday=all.find(w=>w.date===today);
+  const last=all[all.length-1]||null;
+  const avg7 = (()=>{const a=all.slice(-7);return a.length?a.reduce((s,x)=>s+x.kg,0)/a.length:null})();
+  const min30 = (()=>{const a=all.slice(-30);return a.length?Math.min(...a.map(x=>x.kg)):null})();
+  const delta = last?last.kg-cat:null;
+
+  // План сгонки перед ближайшим турниром
+  const nxt=nextEvent();
+  let cutPlanHtml='';
+  if(nxt && last && nxt.weighIn){
+    const target=Number(nxt.weighIn);
+    const days=Math.max(1,daysTo(nxt.date));
+    const toCut=last.kg-target;
+    if(toCut>0.3){
+      cutPlanHtml=`<div class="insight" style="margin-top:14px"><div class="h">План сгонки</div><p>До «${esc(nxt.title)}» — ${days} ${plural(days,'день','дня','дней')}. Сейчас ${fmtN(last.kg)} кг, цель на взвешивании ${fmtN(target)} кг. Нужно скинуть <b>${fmtN(toCut)} кг</b> — по ${fmtN(toCut/days)} кг/день.</p></div>`;
+    }
+  }
+
+  return `${sbar()}
+    <h1 class="name" style="font-size:24px">Вес</h1>
+    <div class="subtitle">Лимит категории ${fmtN(cat)} кг</div>
+
+    <form id="weight-inline" style="margin-top:14px;display:flex;gap:8px;align-items:flex-end">
+      <div class="field" style="flex:1;margin-bottom:0"><label>Сегодня, ${fmtDateShort(today)}</label><input name="kg" type="text" inputmode="decimal" placeholder="${last?fmtN(last.kg):fmtN(cat+3)}" value="${existingToday?fmtN(existingToday.kg):''}"/></div>
+      <button type="submit" class="btn btn-primary" style="max-width:120px;height:46px">Записать</button>
+    </form>
+
+    <div class="kpi-grid" style="margin-top:14px">
+      <div class="kpi"><div class="k">Текущий</div><div class="v num">${last?fmtN(last.kg):'—'}${last?'<sup>кг</sup>':''}</div></div>
+      <div class="kpi"><div class="k">Среднее 7д</div><div class="v num">${avg7?fmtN(avg7):'—'}${avg7?'<sup>кг</sup>':''}</div></div>
+      <div class="kpi"><div class="k">Дельта к лимиту</div><div class="v num">${delta!=null?(delta>0?'+':'')+fmtN(delta):'—'}</div></div>
+      <div class="kpi"><div class="k">Минимум 30д</div><div class="v num">${min30?fmtN(min30):'—'}${min30?'<sup>кг</sup>':''}</div></div>
+    </div>
+
+    ${cutPlanHtml}
+
+    ${last90.length>=2 ? `
+      <div class="bars" style="margin-top:14px"><h3>Динамика · 90 дней</h3>
+        ${weightChart(last90.map(w=>({w:w.kg,cat,d:w.date})))}
+      </div>
+    ` : ''}
+
+    <div class="label" style="margin-top:22px">История</div>
+    ${all.length ? `
+      <div class="w-history">
+        ${all.slice().reverse().slice(0,30).map(w=>`<div class="w-row" data-w-edit="${w.id}"><span class="w-d">${fmtDateShort(w.date)}</span><span class="w-v num">${fmtN(w.kg)}<sup>кг</sup></span><span class="w-dlt ${w.kg<=cat?'ok':w.kg-cat<=2?'warn':'bad'}">${w.kg-cat>0?'+':''}${fmtN(w.kg-cat)}</span></div>`).join('')}
+      </div>
+    ` : `<div class="empty-state"><div class="e-sub">Нет записей. Заполни форму сверху.</div></div>`}
+  `;
+}
+
+/* ===== Соперники ===== */
+function normOpponentName(s){return (s||'').trim().toLowerCase().replace(/\s+/g,' ')}
+function buildOpponents(){
+  const map={};
+  (state.fights||[]).forEach(f=>{
+    const key=normOpponentName(f.opponentName);
+    if(!key)return;
+    if(!map[key]) map[key]={key,name:f.opponentName,club:f.opponentClub||'',city:f.opponentCity||'',fights:[],wins:0,losses:0,draws:0};
+    const o=map[key];
+    o.fights.push(f);
+    if(f.result==='win')o.wins++;
+    else if(f.result==='loss')o.losses++;
+    else if(f.result==='draw')o.draws++;
+    if(f.opponentClub) o.club=f.opponentClub;
+    if(f.opponentCity) o.city=f.opponentCity;
+  });
+  return Object.values(map).sort((a,b)=>b.fights.length-a.fights.length);
+}
+function viewOpponents(){
+  const q=state.route.params.q||'';
+  const all=buildOpponents();
+  const list=q ? all.filter(o=>o.name.toLowerCase().includes(q.toLowerCase())||(o.club||'').toLowerCase().includes(q.toLowerCase())) : all;
+  const totalClubs=new Set(all.map(o=>o.club).filter(Boolean)).size;
+  const revanch=all.filter(o=>o.fights.length>=2).length;
+
+  return `${sbar()}
+    <h1 class="name" style="font-size:24px">Соперники</h1>
+    <div class="subtitle">История встреч ${all.length?'· '+all.length:''}</div>
+
+    <div class="kpi-grid" style="margin-top:14px">
+      <div class="kpi"><div class="k">Всего</div><div class="v num">${all.length}</div></div>
+      <div class="kpi"><div class="k">Клубов</div><div class="v num">${totalClubs}</div></div>
+      <div class="kpi"><div class="k">Реванши</div><div class="v num">${revanch}</div></div>
+      <div class="kpi"><div class="k">Встреч</div><div class="v num">${all.reduce((s,o)=>s+o.fights.length,0)}</div></div>
+    </div>
+
+    <form id="op-search" style="margin-top:18px"><div class="field" style="margin-bottom:0"><input name="q" placeholder="Поиск по имени или клубу" value="${esc(q)}"/></div></form>
+
+    ${list.length ? `
+      <div class="op-list" style="margin-top:12px">
+        ${list.map(o=>{
+          const score=`${o.wins}–${o.losses}${o.draws?'–'+o.draws:''}`;
+          const lead=o.wins>o.losses?'win':o.wins<o.losses?'loss':'draw';
+          return `<div class="op-card" data-go-opponent="${encodeURIComponent(o.key)}">
+            <div class="op-main"><div class="op-n">${esc(o.name)}</div><div class="op-s">${esc(o.club||'')}${o.club&&o.city?' · ':''}${esc(o.city||'')}</div></div>
+            <div class="op-score ${lead}">${score}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    ` : q ? `<div class="empty-state"><div class="e-sub">Никого не найдено.</div></div>` : `<div class="empty-state"><div class="e-icon">${medalIcon('#d4af37')}</div><div class="e-title">Пока пусто</div><div class="e-sub">После первого боя соперники появятся здесь автоматически.</div></div>`}
+  `;
+}
+
+function viewOpponentDetail(keyEnc){
+  const key=decodeURIComponent(keyEnc||'');
+  const all=buildOpponents();
+  const o=all.find(x=>x.key===key);
+  if(!o) return viewOpponents();
+  const note=state.opponentNotes[key]||'';
+  const fights=o.fights.slice().sort((a,b)=>{
+    const ea=state.events.find(e=>e.id===a.eventId),eb=state.events.find(e=>e.id===b.eventId);
+    return (eb?.date||'').localeCompare(ea?.date||'');
+  });
+  return `${sbar()}
+    <div class="nav"><button class="back" data-back>←</button><div class="ctitle">Соперник</div><span></span></div>
+    <h1 class="event-title" style="margin-top:14px">${esc(o.name)}</h1>
+    <div class="event-sub">${esc(o.club||'')}${o.club&&o.city?' · ':''}${esc(o.city||'')}</div>
+
+    <div class="hero" style="margin-top:18px"><div class="ring"></div>
+      <div class="badge">Счёт встреч</div>
+      <div class="place"><div class="n num">${o.wins}</div><div class="l">–</div><div class="n num" style="font-size:48px">${o.losses}</div>${o.draws?`<div class="l">– ${o.draws}</div>`:''}</div>
+      <div class="medal-text">${o.fights.length} ${plural(o.fights.length,'встреча','встречи','встреч')}</div>
+      <div class="meta">${o.wins>o.losses?'Ведёшь по счёту':o.wins<o.losses?'Отстаёшь по счёту':'Равный счёт'}</div>
+    </div>
+
+    <div class="label" style="margin-top:22px">Заметки о стиле</div>
+    <form id="op-note-form" style="margin-top:10px">
+      <div class="field"><textarea name="note" placeholder="Левша, агрессивный старт, хорош во 2-м раунде…">${esc(note)}</textarea></div>
+      <button type="submit" class="btn btn-primary">Сохранить заметку</button>
+    </form>
+
+    <div class="label" style="margin-top:22px">Встречи</div>
+    <div class="bracket" style="margin-top:10px">
+      ${fights.map(f=>{
+        const ev=state.events.find(e=>e.id===f.eventId);
+        const mc=f.result==='win'?'w':f.result==='loss'?'l':'d';
+        const mt=f.result==='win'?'П':f.result==='loss'?'Пр':'Н';
+        return `<div class="fight" data-go-fight="${f.id}">
+          <div class="no"><span>${ev?fmtMon(ev.date):''}</span><b>${ev?fmtDay(ev.date):'—'}</b></div>
+          <div class="info"><div class="op">${esc(ev?.title||'—')}</div><div class="r">${f.round||''} · ${methodName(f.method)}</div></div>
+          <div class="mark ${mc}">${mt}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
 function viewSettings(){
   const p=state.profile;
   const isCoach=state.role==='coach';
@@ -1413,7 +1674,7 @@ function render(){
   const r=state.route;let html='',tabs=true,fab=false;
 
   // Маршруты тренера
-  if(r.name==='coach-dashboard'){html=viewCoachDashboard();tabs=true}
+  if(r.name==='coach-dashboard'){html=viewCoachDashboard();tabs=true;fab=true}
   else if(r.name==='athlete-add'){html=viewAthleteAdd();tabs=false}
   // Маршруты спортсмена (и тренер в режиме просмотра спортсмена)
   else if(r.name==='dashboard'){
@@ -1442,7 +1703,12 @@ function render(){
 }
 function addTabs(){removeTabs();document.getElementById('shell').insertAdjacentHTML('beforeend',viewTabs());document.querySelectorAll('#shell .tabs .tab').forEach(b=>b.onclick=()=>go(b.dataset.tab))}
 function removeTabs(){document.querySelectorAll('#shell .tabs').forEach(x=>x.remove())}
-function addFab(){removeFab();document.getElementById('shell').insertAdjacentHTML('beforeend','<button class="fab" id="fab">+</button>');document.getElementById('fab').onclick=()=>go('event-new')}
+function addFab(target){
+  removeFab();
+  const t=target||(state.route.name==='coach-dashboard'?'athlete-add':'event-new');
+  document.getElementById('shell').insertAdjacentHTML('beforeend','<button class="fab" id="fab">+</button>');
+  document.getElementById('fab').onclick=()=>go(t);
+}
 function removeFab(){document.querySelectorAll('#shell .fab').forEach(x=>x.remove())}
 
 /* === Биндеры === */
@@ -1490,6 +1756,42 @@ function bind(){
     switchAthlete(b.dataset.switchAthlete);
     go('dashboard');
   });
+
+  // Клик на карточку соперника
+  app.querySelectorAll('[data-go-opponent]').forEach(b=>b.onclick=()=>go('opponent',{name:b.dataset.goOpponent}));
+
+  // Инлайн-форма веса
+  const wInline=document.getElementById('weight-inline');
+  if(wInline) wInline.onsubmit=e=>{
+    e.preventDefault();
+    const kg=Number(String(new FormData(wInline).get('kg')).replace(',','.'));
+    if(!kg||kg<30||kg>200){toast('Некорректный вес');return}
+    const today=todayISO();
+    const ex=state.weights.find(w=>w.date===today);
+    if(ex) ex.kg=kg; else state.weights.push({id:uid(),date:today,kg});
+    save();toast('Записано');render();
+  };
+
+  // Клик по строке веса — редактирование через модалку
+  app.querySelectorAll('[data-w-edit]').forEach(b=>b.onclick=()=>weightLogModal());
+
+  // Поиск соперников
+  const opSearch=document.getElementById('op-search');
+  if(opSearch){
+    const inp=opSearch.querySelector('input');
+    let t=null;
+    inp.oninput=()=>{clearTimeout(t);t=setTimeout(()=>go('opponents',{q:inp.value}),200)};
+    opSearch.onsubmit=e=>{e.preventDefault();go('opponents',{q:inp.value})};
+  }
+
+  // Сохранение заметки о сопернике
+  const opNote=document.getElementById('op-note-form');
+  if(opNote) opNote.onsubmit=e=>{
+    e.preventDefault();
+    const key=decodeURIComponent(state.route.params.name||'');
+    state.opponentNotes[key]=String(new FormData(opNote).get('note')||'');
+    save();toast('Сохранено');
+  };
   app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const n=b.dataset.go,id=b.dataset.id;id?go(n,{id}):go(n)});
   app.querySelectorAll('[data-go-event]').forEach(b=>b.onclick=()=>go('event',{id:b.dataset.goEvent}));
   app.querySelectorAll('[data-events-mode]').forEach(b=>b.onclick=()=>go('events',{mode:b.dataset.eventsMode}));
