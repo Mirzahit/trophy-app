@@ -162,7 +162,37 @@
   .streak .loss{background:var(--bg-subtle);color:#5a5a52}
   .streak .empty{background:transparent;border:1px dashed var(--border);color:var(--text-tertiary);cursor:default}
 
-  /* ===== «Сегодня» — главный экран ===== */
+  /* ===== Обзор атлета — компактная шапка ===== */
+  .overview-head{margin-bottom:18px}
+  .oh-label{font-size:10px;font-weight:500;letter-spacing:.8px;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:6px}
+  .oh-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .oh-chip{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--text-secondary);line-height:1.4;min-width:0}
+  .oh-chip .oh-name{color:var(--text-primary);font-weight:500}
+  .oh-chip .oh-sep{color:var(--text-tertiary);margin:0 2px}
+  .oh-chip .oh-meta{color:var(--text-secondary)}
+
+  /* ===== Hero — главное действие ===== */
+  .hero-main{margin-top:8px;background:linear-gradient(135deg,var(--bg-secondary) 0%,var(--bg-card) 100%);border:1px solid var(--border);border-radius:var(--r-xl);padding:28px 30px 30px;position:relative;overflow:hidden;cursor:pointer;transition:border-color .15s}
+  .hero-main:hover{border-color:var(--accent-dim)}
+  .hero-main::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
+  .hero-main::after{content:"";position:absolute;right:-80px;top:-80px;width:220px;height:220px;border-radius:999px;border:1.5px solid rgba(0,229,160,.14);pointer-events:none}
+  .hero-main .hm-kicker{font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--accent);font-weight:500}
+  .hero-main .hm-count{display:flex;align-items:baseline;gap:14px;margin-top:16px;flex-wrap:wrap}
+  .hero-main .hm-n{font-size:88px;line-height:.9;font-weight:600;letter-spacing:-5px;font-feature-settings:"tnum" 1;color:var(--text-primary)}
+  .hero-main .hm-n.gold{color:var(--accent)}
+  .hero-main .hm-n.silver{color:var(--silver)}
+  .hero-main .hm-n.bronze{color:var(--bronze)}
+  .hero-main .hm-u{font-size:14px;color:var(--text-secondary);letter-spacing:.2px;font-weight:500}
+  .hero-main .hm-title{margin-top:12px;font-size:22px;font-weight:500;letter-spacing:-.4px;line-height:1.2;color:var(--text-primary)}
+  .hero-main .hm-meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .hero-main .hm-chip{display:inline-block;padding:7px 13px;border-radius:999px;font-size:12px;font-weight:500;letter-spacing:.1px;background:var(--bg-subtle);color:var(--text-secondary);border:1px solid var(--border)}
+  .hero-main .hm-chip.primary{background:rgba(0,229,160,.12);color:var(--accent);border-color:rgba(0,229,160,.3)}
+  .hero-main .hm-chip.muted{color:var(--text-tertiary)}
+  .hero-main .hm-cta{display:inline-block;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;background:var(--accent);color:#0a1420;border:none;cursor:pointer}
+  .hero-main .hm-cta:hover{background:var(--accent-dim)}
+  @media (min-width:1024px){.hero-main{padding:36px 40px 40px}.hero-main .hm-n{font-size:108px}.hero-main .hm-title{font-size:26px}}
+
+  /* Старый класс .hero-today для совместимости с другими экранами */
   .hero-today{margin-top:18px;background:var(--bg-dark);color:var(--text-on-dark);border-radius:var(--r-lg);padding:24px;position:relative;overflow:hidden;cursor:pointer}
   .hero-today:active{opacity:.95}
   .hero-today .ring{position:absolute;right:-80px;top:-80px;width:240px;height:240px;border-radius:999px;border:1.5px solid rgba(0,229,160,.25);pointer-events:none}
@@ -969,34 +999,36 @@ function viewProfile(){
     const targetCut = w && weighIn ? w.kg - weighIn : null;
     const goalTxt = goalLabel(nxt.goal);
     heroHtml = `
-      <div class="hero-today" data-go-event="${nxt.id}">
-        <div class="ring"></div>
-        <div class="badge">Ближайший турнир</div>
-        <div class="hero-count"><span class="n num">${d>=0?d:0}</span><span class="unit">${plural(Math.max(0,d),'день','дня','дней')}</span></div>
-        <div class="hero-title">${esc(nxt.title)}</div>
-        <div class="hero-sub">${fmtDate(nxt.date)} · ${esc(nxt.city||levelName(nxt.level))}</div>
-        ${goalTxt?`<div class="hero-chip" style="margin-top:10px">Цель: ${esc(goalTxt)}</div>`:''}
-        ${targetCut!=null && targetCut>0 ? `<div class="hero-chip">согнать ${fmtN(targetCut)} кг · по ${fmtN(targetCut/Math.max(1,d))} кг/день</div>` : ''}
+      <div class="hero-main next" data-go-event="${nxt.id}">
+        <div class="hm-kicker">Ближайший турнир · ${fmtDate(nxt.date)}</div>
+        <div class="hm-count"><span class="hm-n num">${d>=0?d:0}</span><span class="hm-u">${plural(Math.max(0,d),'день','дня','дней')} до старта</span></div>
+        <div class="hm-title">${esc(nxt.title)}</div>
+        <div class="hm-meta">
+          ${goalTxt?`<div class="hm-chip primary">Цель: ${esc(goalTxt)}</div>`:''}
+          ${targetCut!=null && targetCut>0 ? `<div class="hm-chip">Согнать ${fmtN(targetCut)} кг · по ${fmtN(targetCut/Math.max(1,d))} кг/день</div>` : ''}
+          ${nxt.city?`<div class="hm-chip muted">${esc(nxt.city)}</div>`:''}
+        </div>
       </div>
     `;
   } else if(lst){
     const pc=lst.place===1?'gold':lst.place===2?'silver':lst.place===3?'bronze':'';
-    const pt=lst.place===1?'Золото':lst.place===2?'Серебро':lst.place===3?'Бронза':lst.place?lst.place+'-е место':'—';
+    const pt=lst.place===1?'Золотая медаль':lst.place===2?'Серебро':lst.place===3?'Бронза':lst.place?lst.place+'-е место':'без медали';
     heroHtml = `
-      <div class="hero-today last" data-go-event="${lst.id}">
-        <div class="badge">Последний турнир</div>
-        <div class="hero-count"><span class="n num ${pc}">${lst.place||'—'}</span><span class="unit">${pt}</span></div>
-        <div class="hero-title">${esc(lst.title)}</div>
-        <div class="hero-sub">${fmtDate(lst.date)}</div>
-        <div class="hero-chip">+ Запланировать следующий</div>
+      <div class="hero-main last" data-go-event="${lst.id}">
+        <div class="hm-kicker">Последний турнир · ${fmtDateShort(lst.date)}</div>
+        <div class="hm-count"><span class="hm-n num ${pc}">${lst.place||'—'}</span><span class="hm-u">${pt}</span></div>
+        <div class="hm-title">${esc(lst.title)}</div>
+        <div class="hm-meta">
+          <button class="hm-cta" data-go="event-new">+ Запланировать следующий</button>
+        </div>
       </div>
     `;
   } else {
     heroHtml = `
-      <div class="hero-today empty" data-go="event-new">
-        <div class="badge">Старт</div>
-        <div class="hero-title" style="margin-top:18px">Добавь первый турнир</div>
-        <div class="hero-sub">Дальше всё соберётся само</div>
+      <div class="hero-main empty" data-go="event-new">
+        <div class="hm-kicker">Старт</div>
+        <div class="hm-title" style="font-size:24px;margin-top:8px">Запланируй первый турнир</div>
+        <div class="hm-meta"><div class="hm-chip primary">+ Создать турнир</div></div>
       </div>
     `;
   }
@@ -1004,19 +1036,20 @@ function viewProfile(){
   const quote = quoteOfDay(p.sport||'boxing');
 
   return `${sbar()}
-    <div class="row">
-      <div>
-        <span class="label">Сегодня</span>
-        <h1 class="name" style="margin-top:4px">${esc(p.firstName)} ${esc(p.lastName)}</h1>
-        <div class="subtitle">${esc(sportName(p.sport))} · до ${fmtN(cat)} кг · ${esc(p.city||'—')}</div>
+    <div class="overview-head">
+      <div class="oh-label">Обзор атлета</div>
+      <div class="oh-row">
+        <div class="oh-chip">
+          <span class="oh-name">${esc(p.firstName)} ${esc(p.lastName)}</span>
+          <span class="oh-sep">·</span>
+          <span class="oh-meta">${esc(sportName(p.sport))}</span>
+          <span class="oh-sep">·</span>
+          <span class="oh-meta">до ${fmtN(cat)} кг</span>
+          ${p.rank?`<span class="oh-sep">·</span><span class="oh-meta">${esc(p.rank)}</span>`:''}
+          ${p.city?`<span class="oh-sep">·</span><span class="oh-meta">${esc(p.city)}</span>`:''}
+        </div>
+        <button class="btn-link" data-go="settings">Настройки</button>
       </div>
-      <button class="btn-link" data-go="settings">Настройки</button>
-    </div>
-
-    <div class="quote-box">
-      <div class="q-mark">“</div>
-      <div class="q-text">${esc(quote.t)}</div>
-      <div class="q-author">— ${esc(quote.a)}</div>
     </div>
 
     ${heroHtml}
@@ -1087,6 +1120,14 @@ function viewProfile(){
         <button class="btn btn-primary" style="margin-top:16px;max-width:240px" data-go="event-new">Добавить турнир</button>
       </div>
     `}
+
+    <div class="quote-box" style="margin-top:28px">
+      <div class="q-mark">“</div>
+      <div>
+        <div class="q-text">${esc(quote.t)}</div>
+        <div class="q-author">— ${esc(quote.a)}</div>
+      </div>
+    </div>
   `;
 }
 
