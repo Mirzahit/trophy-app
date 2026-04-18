@@ -390,6 +390,24 @@
   .insight .h{font-size:10.5px;letter-spacing:.3px;text-transform:uppercase;font-weight:500;color:var(--gold);margin-bottom:10px}
   .insight p{font-size:13.5px;line-height:1.6}
 
+  /* Цитата дня */
+  .quote-box{margin-top:18px;padding:14px 18px 14px 14px;border-left:2px solid var(--border);display:flex;gap:10px}
+  .quote-box .q-mark{font-size:28px;color:var(--gold);line-height:1;font-family:Georgia,serif;margin-top:-4px;opacity:.6}
+  .quote-box .q-text{font-style:italic;font-size:13.5px;line-height:1.55;color:var(--text-primary);letter-spacing:-.05px}
+  .quote-box .q-author{margin-top:6px;font-size:11.5px;color:var(--text-secondary)}
+  .quote-box > div:nth-child(2){flex:1}
+
+  /* Цель на турнир */
+  .goal-box{margin-top:18px;border-radius:var(--r-md);padding:14px 18px;background:var(--bg-secondary);border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .goal-box .gb-label{font-size:10.5px;letter-spacing:.3px;text-transform:uppercase;color:var(--text-secondary);font-weight:500}
+  .goal-box .gb-main{font-size:16px;font-weight:500;margin-top:4px}
+  .goal-box .gb-status{font-size:11.5px;color:var(--text-secondary);padding:4px 10px;border-radius:999px;background:var(--bg-subtle);font-weight:500;flex-shrink:0}
+  .goal-box.achieved{border-color:var(--success);background:#edf6f1}
+  .goal-box.achieved .gb-status{background:var(--success);color:#fff}
+  .goal-box.missed{border-color:var(--danger);background:#fbeeee}
+  .goal-box.missed .gb-status{background:var(--danger);color:#fff}
+  .goal-box.pending .gb-status{background:var(--gold);color:#1a1a1a}
+
   /* Раздел Тренировки */
   .streak-big{background:var(--bg-dark);color:var(--text-on-dark);border-radius:var(--r-lg);padding:24px 24px 22px;text-align:left;position:relative;overflow:hidden}
   .streak-big::before{content:"";position:absolute;left:0;top:20px;bottom:20px;width:3px;background:var(--gold);border-radius:0 2px 2px 0}
@@ -513,6 +531,106 @@ const ROUNDS=['1/32','1/16','1/8','1/4','1/2','Финал'];
 const PRESET_TAGS=['Защита корпуса','Выносливость 3р','Джеб','Работа ног','Клинч','Защита головы','Контратака','Дистанция'];
 const MONTHS=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
 const MONTHS_F=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+
+/* Цитаты великих спортсменов — по виду спорта. Выбор по дню даёт одну и ту же на сутки. */
+const QUOTES={
+  boxing:[
+    {t:'Порхай как бабочка, жаль как пчела',a:'Мухаммед Али'},
+    {t:'У каждого есть план — пока он не получит в лицо',a:'Майк Тайсон'},
+    {t:'Чемпионов делают не в зале. Чемпионов делают то, во что они верят — страсть, мечта, цель',a:'Мухаммед Али'},
+    {t:'Боль проходит через секунды. Гордость сохраняется навсегда',a:'Костя Цзю'},
+    {t:'Я не боялся проиграть. Я боялся не показать всё, на что способен',a:'Василий Ломаченко'},
+    {t:'Ринг — зеркало. Он показывает, кто ты на самом деле, без масок',a:'Геннадий Головкин'},
+    {t:'Если ты готовишься к победе — ты уже выиграл половину',a:'Флойд Мейвезер'},
+    {t:'Чтобы стать чемпионом — надо полюбить одиночество тренировок',a:'Руй Диас'},
+    {t:'Нет такого понятия как "слишком много работы". Есть "недостаточно для мечты"',a:'Мэнни Пакьяо'},
+    {t:'Удар — только 10% боксёра. Всё остальное — голова, ноги, сердце',a:'Рой Джонс-мл.'},
+    {t:'Победа без риска — триумф без славы',a:'Мухаммед Али'},
+    {t:'В боксе важно не сколько раз ты упал — важно сколько раз встал',a:'Эвандер Холифилд'},
+    {t:'Не бойся соперника. Бойся недоделанной работы в зале',a:'Леннокс Льюис'},
+    {t:'Сила приходит из глубины, где таится страх',a:'Сонни Листон'},
+    {t:'Поединок выигрывается задолго до гонга',a:'Джо Фрейзер'}
+  ],
+  mma:[
+    {t:'Жёсткая работа бьёт талант, когда талант не работает',a:'Хабиб Нурмагомедов'},
+    {t:'Если ты думаешь о поражении — ты уже проиграл',a:'Конор МакГрегор'},
+    {t:'Я не спорил с болью. Я просто проходил через неё',a:'Жорж Сен-Пьер'},
+    {t:'Боец проверяется не в победе, а в том как он возвращается после поражения',a:'Андерсон Силва'},
+    {t:'Техника без характера — как оружие без патронов',a:'Федор Емельяненко'},
+    {t:'Тренируйся так, будто самый опасный соперник — ты вчерашний',a:'Хабиб Нурмагомедов'},
+    {t:'Страх — это нормально. Важно что ты с ним делаешь',a:'Деметриус Джонсон'},
+    {t:'Я не учил ударам. Я учился терпеть',a:'Фёдор Емельяненко'},
+    {t:'Клетка — честнее людей. Она показывает правду',a:'Жозе Алдо'},
+    {t:'Выиграть можно и по решению. Но запоминают другое',a:'Жан-Себастьен Журдан'},
+    {t:'Сдаваться надо только перед сном',a:'Хабиб Нурмагомедов'},
+    {t:'Каждая тренировка — вклад в ту минуту, когда устанешь',a:'Дастин Порье'}
+  ],
+  wrestling:[
+    {t:'Борьба — это не спорт. Это образ жизни',a:'Александр Карелин'},
+    {t:'Кто не упал — тот не боролся',a:'Бувайсар Сайтиев'},
+    {t:'Хороший борец сильнее соперника на одну секунду. Этого достаточно',a:'Иван Ярыгин'},
+    {t:'Чтобы победить — надо уметь проигрывать',a:'Абдулрашид Садулаев'},
+    {t:'Ковёр не прощает. Он возвращает тебе всё, что ты в него вложил',a:'Джон Смит'},
+    {t:'Вес можно согнать. Дух — нет',a:'Махарбек Хадарцев'},
+    {t:'Спортсмена делает не зал. Его делает последний час тренировки, когда уже не можешь',a:'Александр Карелин'},
+    {t:'Техника — это характер в движении',a:'Андрей Ядрышников'},
+    {t:'У меня был выбор: бороться или сдаться. Сдаваться я не научился',a:'Бувайсар Сайтиев'},
+    {t:'На ковре оправданий нет. Только результат',a:'Беслан Мудранов'},
+    {t:'Борьба — честный спорт. Обмануть соперника можно. Ковёр — никогда',a:'Иван Поддубный'},
+    {t:'Тяжелее всего — остаться собой после поражения и после победы',a:'Абдулрашид Садулаев'}
+  ],
+  muay_thai:[
+    {t:'Локти и колени не лгут. Они показывают кто ты',a:'Буакав Банчамек'},
+    {t:'Боль — учитель. Слушай её',a:'Саенчай'},
+    {t:'В Муай-тай нет случайностей. Есть подготовка',a:'Ёдсэнклай Фэйртекс'},
+    {t:'Клинч — это шахматы в близком контакте',a:'Сагат Петчинди'},
+    {t:'Сердце в груди бьётся сильнее, чем удар локтем',a:'Рамон Деккерс'},
+    {t:'Ты не устанешь, если любишь то, что делаешь',a:'Буакав Банчамек'},
+    {t:'Муай-тай учит уважению сильнее, чем агрессии',a:'Самарт Паякарун'},
+    {t:'Дисциплина сильнее мотивации',a:'Вандерлей Силва'},
+    {t:'Колено решает там, где кулак не справляется',a:'Диесельной Чор Тавансук'},
+    {t:'Настоящий боец — тот, кто дерётся с собой каждое утро',a:'Саенчай'}
+  ],
+  sambo:[
+    {t:'Самбо — это школа характера. Техника вторична',a:'Анатолий Харлампиев'},
+    {t:'В самбо нет бесполезных движений. Каждое имеет смысл',a:'Евгений Чумаков'},
+    {t:'Побеждает не сильнейший. Побеждает подготовленный',a:'Фёдор Емельяненко'},
+    {t:'Ковёр учит: падение — это часть движения вперёд',a:'Виктор Путин'},
+    {t:'Русский стиль — не кулаками, а разумом',a:'Александр Пушница'},
+    {t:'Болевой — это переговоры. Побеждает тот, у кого терпение',a:'Мамука Хергиани'},
+    {t:'Сила без техники — это только мышцы. Техника без силы — только показ',a:'Давид Рудман'},
+    {t:'Самбо воспитывает: проиграл — встал, пожал руку, пошёл тренироваться',a:'Анатолий Харлампиев'},
+    {t:'Когда тебе тяжело — именно в этот момент рождается самбист',a:'Игорь Куринной'}
+  ]
+};
+function quoteOfDay(sport){
+  const arr=QUOTES[sport]||QUOTES.boxing;
+  const seed=Math.floor(Date.now()/86400000);
+  return arr[seed%arr.length];
+}
+
+/* Цели турниров */
+const GOAL_TYPES=[
+  {v:'gold',n:'Золото'},
+  {v:'top3',n:'Попасть в топ-3'},
+  {v:'bracket',n:'Пройти сетку'},
+  {v:'experience',n:'Набрать опыт'},
+  {v:'custom',n:'Своя цель'}
+];
+function eventGoalStatus(e){
+  if(!e.goal||!e.goal.type) return null;
+  if(e.status==='upcoming') return 'pending';
+  if(e.goal.type==='gold') return e.place===1?'achieved':'missed';
+  if(e.goal.type==='top3') return (e.place&&e.place<=3)?'achieved':'missed';
+  if(e.goal.type==='bracket') return (e.place&&e.place<=4)?'achieved':'missed';
+  if(e.goal.type==='experience') return 'achieved';
+  return 'pending';
+}
+function goalLabel(g){
+  if(!g||!g.type) return null;
+  if(g.type==='custom') return g.custom||'Цель';
+  return (GOAL_TYPES.find(t=>t.v===g.type)||{n:'Цель'}).n;
+}
 
 /* === Хранилище === */
 const STORAGE_KEY='trophy.v1';
@@ -826,6 +944,7 @@ function viewProfile(){
     const d=daysTo(nxt.date);
     const weighIn = nxt.weighIn ? Number(nxt.weighIn) : null;
     const targetCut = w && weighIn ? w.kg - weighIn : null;
+    const goalTxt = goalLabel(nxt.goal);
     heroHtml = `
       <div class="hero-today" data-go-event="${nxt.id}">
         <div class="ring"></div>
@@ -833,6 +952,7 @@ function viewProfile(){
         <div class="hero-count"><span class="n num">${d>=0?d:0}</span><span class="unit">${plural(Math.max(0,d),'день','дня','дней')}</span></div>
         <div class="hero-title">${esc(nxt.title)}</div>
         <div class="hero-sub">${fmtDate(nxt.date)} · ${esc(nxt.city||levelName(nxt.level))}</div>
+        ${goalTxt?`<div class="hero-chip" style="margin-top:10px">Цель: ${esc(goalTxt)}</div>`:''}
         ${targetCut!=null && targetCut>0 ? `<div class="hero-chip">согнать ${fmtN(targetCut)} кг · по ${fmtN(targetCut/Math.max(1,d))} кг/день</div>` : ''}
       </div>
     `;
@@ -858,6 +978,8 @@ function viewProfile(){
     `;
   }
 
+  const quote = quoteOfDay(p.sport||'boxing');
+
   return `${sbar()}
     <div class="row">
       <div>
@@ -866,6 +988,12 @@ function viewProfile(){
         <div class="subtitle">${esc(sportName(p.sport))} · до ${fmtN(cat)} кг · ${esc(p.city||'—')}</div>
       </div>
       <button class="btn-link" data-go="settings">Настройки</button>
+    </div>
+
+    <div class="quote-box">
+      <div class="q-mark">“</div>
+      <div class="q-text">${esc(quote.t)}</div>
+      <div class="q-author">— ${esc(quote.a)}</div>
     </div>
 
     ${heroHtml}
@@ -1017,6 +1145,7 @@ function viewEventDetail(id){
       <div class="mini-card"><div class="k">Взвешивание</div><div class="v num">${e.weighIn?fmtN(e.weighIn):'—'}${e.weighIn?'<sup>кг</sup>':''}</div><div class="sub">${walk!=null?'Согнал '+fmtN(walk)+' кг':(e.weighIn?'—':'Не указано')}</div></div>
       <div class="mini-card"><div class="k">Категория</div><div class="v num">${fmtN(e.weightKg)}<sup>кг</sup></div><div class="sub">${WEIGHT_NAMES[e.weightKg]||''}</div></div>
     </div>
+    ${e.goal&&e.goal.type?`<div class="goal-box ${eventGoalStatus(e)||''}"><div class="gb-label">Цель турнира</div><div class="gb-main">${esc(goalLabel(e.goal))}</div><div class="gb-status">${eventGoalStatus(e)==='achieved'?'Достигнута':eventGoalStatus(e)==='missed'?'Не достигнута':'В процессе'}</div></div>`:''}
     <div class="bracket-label"><span class="label">Сетка боёв</span><button data-go="fight-new" data-id="${e.id}">+ бой</button></div>
     <div class="bracket">${f.length?f.map(fightRow).join(''):`<div class="empty-state"><div class="e-sub">Боёв пока нет. Добавь первый.</div></div>`}</div>
     ${e.notes?`<div style="margin-top:22px"><div class="label">Заметки</div><div style="margin-top:8px;font-size:13.5px;line-height:1.5">${esc(e.notes)}</div></div>`:''}
@@ -1056,7 +1185,13 @@ function viewEventForm(mode,id){
       <div class="field"><label>Ходовой вес, кг</label><input name="walkAround" inputmode="decimal" value="${d.walkAround||''}" placeholder="78,2"/></div>
       <div class="field"><label>Участников</label><input name="totalParticipants" inputmode="numeric" value="${d.totalParticipants||''}"/></div>
     </div>
-    <div class="field"><label>Итоговое место</label><select name="place"><option value="">—</option>${[1,2,3,4,5,6,7,8].map(p=>`<option value="${p}" ${d.place==p?'selected':''}>${p}</option>`).join('')}</select></div>
+    <div class="field-row">
+      <div class="field"><label>Итоговое место</label><select name="place"><option value="">—</option>${[1,2,3,4,5,6,7,8].map(p=>`<option value="${p}" ${d.place==p?'selected':''}>${p}</option>`).join('')}</select></div>
+      <div class="field"><label>Цель на турнир</label>
+        <select name="goalType"><option value="">—</option>${GOAL_TYPES.map(g=>`<option value="${g.v}" ${d.goal?.type===g.v?'selected':''}>${g.n}</option>`).join('')}</select>
+      </div>
+    </div>
+    <div class="field" id="goal-custom-field" style="${d.goal?.type==='custom'?'':'display:none'}"><label>Своя цель</label><input name="goalCustom" value="${esc(d.goal?.custom||'')}" placeholder="Например, выиграть у Абдрахманова"/></div>
     <div class="field"><label>Заметки</label><textarea name="notes" placeholder="Общие впечатления">${esc(d.notes||'')}</textarea></div>
     <button type="submit" class="btn btn-primary">${mode==='new'?'Создать':'Сохранить'}</button>
   </form>`;
@@ -1836,7 +1971,19 @@ function bind(){
   const ef=document.getElementById('event-form');
   if(ef){
     const sb=document.querySelector('[data-submit="event-form"]');if(sb)sb.onclick=()=>ef.requestSubmit();
-    ef.onsubmit=e=>{e.preventDefault();const fd=new FormData(ef);const cur=state.route.name==='event-edit'?state.events.find(x=>x.id===state.route.params.id):null;const p={id:cur?cur.id:uid(),title:fd.get('title'),date:fd.get('date'),city:fd.get('city'),venue:fd.get('venue'),level:fd.get('level'),weightKg:Number(fd.get('weightKg')),weighIn:fd.get('weighIn')?Number(String(fd.get('weighIn')).replace(',','.')):null,walkAround:fd.get('walkAround')?Number(String(fd.get('walkAround')).replace(',','.')):null,place:fd.get('place')?Number(fd.get('place')):null,totalParticipants:fd.get('totalParticipants')?Number(fd.get('totalParticipants')):null,status:fd.get('status'),notes:fd.get('notes')};if(cur)Object.assign(cur,p);else state.events.push(p);save();go('event',{id:p.id})};
+    // Показать/скрыть поле кастомной цели
+    const goalSel=ef.querySelector('[name="goalType"]'),goalCustF=ef.querySelector('#goal-custom-field');
+    if(goalSel && goalCustF){goalSel.onchange=()=>{goalCustF.style.display=goalSel.value==='custom'?'':'none'}}
+    ef.onsubmit=e=>{
+      e.preventDefault();
+      const fd=new FormData(ef);
+      const cur=state.route.name==='event-edit'?state.events.find(x=>x.id===state.route.params.id):null;
+      const goalType=fd.get('goalType');
+      const goal=goalType?{type:goalType,custom:goalType==='custom'?fd.get('goalCustom')||'':null}:null;
+      const p={id:cur?cur.id:uid(),title:fd.get('title'),date:fd.get('date'),city:fd.get('city'),venue:fd.get('venue'),level:fd.get('level'),weightKg:Number(fd.get('weightKg')),weighIn:fd.get('weighIn')?Number(String(fd.get('weighIn')).replace(',','.')):null,walkAround:fd.get('walkAround')?Number(String(fd.get('walkAround')).replace(',','.')):null,place:fd.get('place')?Number(fd.get('place')):null,totalParticipants:fd.get('totalParticipants')?Number(fd.get('totalParticipants')):null,status:fd.get('status'),notes:fd.get('notes'),goal};
+      if(cur)Object.assign(cur,p);else state.events.push(p);
+      save();go('event',{id:p.id});
+    };
   }
 
   const ff=document.getElementById('fight-form');
