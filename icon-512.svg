@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="108" fill="#1a1a1a"/>
+  <path d="M180 96 L152 192 M332 96 L360 192" fill="none" stroke="#d4af37" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="256" cy="294" r="118" fill="none" stroke="#d4af37" stroke-width="16"/>
+  <circle cx="256" cy="294" r="58" fill="none" stroke="#d4af37" stroke-width="13"/>
+  <text x="256" y="470" text-anchor="middle" fill="#f7f4ec" font-family="Inter, sans-serif" font-weight="500" font-size="44" letter-spacing="3">TROPHY</text>
+</svg>
