@@ -1922,6 +1922,7 @@ function viewSettings(){
     <div class="divider"></div>
     <div class="label">Данные</div>
     <div class="stack" style="margin-top:10px">
+      <button class="btn btn-ghost" id="load-demo">Загрузить демо-данные</button>
       <button class="btn btn-ghost" id="export-json">Экспорт в JSON</button>
       <button class="btn btn-ghost" id="import-json">Импорт из JSON</button>
       <button class="btn btn-danger" id="reset-all">Удалить все данные</button>
@@ -2283,6 +2284,11 @@ function bind(){
     };
     i.click();
   };
+  const ld=document.getElementById('load-demo');
+  if(ld)ld.onclick=()=>modal('Загрузить демо-данные?','Текущие данные будут заменены на 6 демо-турниров с боями и тренировками.',()=>{
+    loadDemoData();render();toast('Демо-данные загружены');
+  });
+
   const rs=document.getElementById('reset-all');
   if(rs)rs.onclick=()=>modal('Удалить все данные?','Все спортсмены, их бои, вес и тренировки будут стёрты.',()=>{
     localStorage.removeItem(STORAGE_KEY);
@@ -2476,8 +2482,8 @@ function loadDemoData(){
 
 /* === Старт === */
 load();
-// ?demo=1 — загрузить демо-данные (реальные турниры пользователя) если хранилище пустое
-if(location.search.indexOf('demo=1')!==-1 && !state.athletes.length){
+// ?demo=1 — принудительно загрузить демо-данные (перезаписывает текущие)
+if(location.search.indexOf('demo=1')!==-1){
   loadDemoData();
 }
 if(location.hash){const n=location.hash.slice(1);if(['dashboard','coach-dashboard','events','trainings','weight','opponents','stats','settings'].includes(n))state.route={name:n,params:{}}}
