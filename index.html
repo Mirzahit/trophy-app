@@ -34,15 +34,19 @@
   body{background:var(--bg-primary)}
   #shell{width:100%;max-width:none;background:var(--bg-primary);min-height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden}
 
-  /* Планшет/узкий десктоп (700–1099px): показать телефонную рамку по центру */
-  @media (min-width:700px) and (max-width:1099px){
-    body{background:#0a0a0a;padding:32px 16px;justify-content:center}
-    #shell{max-width:420px;border-radius:44px;min-height:820px;max-height:900px;box-shadow:0 0 0 1px #1e1e1e,0 40px 80px -20px rgba(0,0,0,.6)}
+  /* Планшет (768–1023px): широкий одноколоночный контент + топбар с бургером */
+  @media (min-width:768px) and (max-width:1023px){
+    body{background:var(--bg-primary);padding:0;justify-content:flex-start}
+    #shell{max-width:none;min-height:100vh}
+    .sbar{display:none}
+    #app{padding:28px 40px 120px}
+    #app > *{max-width:720px;width:100%;margin-left:auto;margin-right:auto}
+    .tabs{display:none!important}
   }
 
-  /* Десктоп ≥1100px: сайдбар слева, широкий контент, без рамки */
+  /* Десктоп ≥1024px: сайдбар слева, широкий контент, без рамки */
   #sidebar{display:none}
-  @media (min-width:1100px){
+  @media (min-width:1024px){
     body{background:var(--bg-primary);padding:0;justify-content:flex-start}
     #shell{flex-direction:row;max-width:none;min-height:100vh;overflow:visible}
     #sidebar{display:flex;flex-direction:column;width:240px;flex-shrink:0;padding:28px 18px;border-right:1px solid var(--border);background:var(--bg-primary);position:sticky;top:0;height:100vh}
@@ -66,11 +70,14 @@
   #sidebar .s-foot{font-size:11px;color:var(--text-tertiary);padding:10px 14px;line-height:1.5}
 
   #app{flex:1;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;padding:18px 22px 20px;-webkit-overflow-scrolling:touch}
-  @media (min-width:1100px){
+  @media (min-width:1024px){
     #app{padding:40px 56px 60px;align-items:flex-start}
-    #app > *{width:100%;max-width:760px}
-    #app .trophy-grid,#app .two-cards,#app .kpi-grid{max-width:760px}
-    #app .field-row{max-width:520px}
+    #app > *{width:100%;max-width:1100px}
+    #app .trophy-grid{max-width:560px}
+    #app .two-cards{max-width:560px}
+    #app .kpi-grid{max-width:900px;grid-template-columns:repeat(4,1fr)}
+    #app .field-row{max-width:600px}
+    #app form{max-width:720px}
     #app .btn-primary,#app .btn-ghost,#app .btn-danger{max-width:280px}
   }
   #app::-webkit-scrollbar{width:0}
@@ -80,10 +87,10 @@
   .nav{display:grid;grid-template-columns:28px 1fr 90px;align-items:center;gap:8px;flex-shrink:0}
   .nav .back{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:18px;border-radius:8px}
   .nav .back:active{background:var(--bg-subtle)}
-  .nav .ctitle{text-align:center;font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--text-secondary);font-weight:500;line-height:1.2}
+  .nav .ctitle{text-align:center;font-size:10.5px;letter-spacing:.3px;text-transform:uppercase;color:var(--text-secondary);font-weight:500;line-height:1.2}
   .nav .act{text-align:right;font-size:13.5px;font-weight:500}
 
-  .label{font-size:10.5px;font-weight:500;letter-spacing:.8px;text-transform:uppercase;color:var(--text-secondary)}
+  .label{font-size:10.5px;font-weight:500;letter-spacing:.3px;text-transform:uppercase;color:var(--text-secondary)}
   .divider{height:1px;background:var(--border);margin:20px 0}
   .row{display:flex;align-items:center;justify-content:space-between}
   .num{font-feature-settings:"tnum" 1,"lnum" 1;letter-spacing:-.8px}
@@ -94,10 +101,12 @@
   .btn-primary{background:var(--bg-dark);color:var(--text-on-dark);width:100%}
   .btn-ghost{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border);width:100%}
   .btn-danger{background:transparent;color:var(--danger);border:1px solid rgba(201,79,79,.3);width:100%}
+  .btn-subtle-danger{background:transparent;color:var(--text-tertiary);font-size:12.5px;font-weight:400;padding:10px 14px;text-align:center;width:100%;letter-spacing:-.1px}
+  .btn-subtle-danger:hover{color:var(--danger)}
   .btn-link{padding:8px 0;color:var(--text-primary);font-weight:500;font-size:13.5px}
 
   .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-  .field label{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--text-secondary);font-weight:500}
+  .field label{font-size:11px;letter-spacing:.3px;text-transform:uppercase;color:var(--text-secondary);font-weight:500}
   .field input,.field select,.field textarea{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--r-md);padding:13px 14px;font-size:14.5px;color:var(--text-primary);outline:none;-webkit-appearance:none;appearance:none;width:100%}
   .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--text-primary)}
   .field textarea{min-height:90px;resize:vertical;font-family:inherit}
@@ -111,14 +120,16 @@
   .stat{display:flex;flex-direction:column;gap:6px}
   .stat .v{font-size:26px;font-weight:500;letter-spacing:-1px;font-feature-settings:"tnum" 1}
   .stat .v sup{font-size:13px;font-weight:500;margin-left:1px;letter-spacing:0;top:-.8em}
-  .stat .k{font-size:10.5px;font-weight:500;letter-spacing:.7px;color:var(--text-secondary);text-transform:uppercase}
+  .stat .k{font-size:10.5px;font-weight:500;letter-spacing:.3px;color:var(--text-secondary);text-transform:uppercase}
 
   .trophy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
-  .trophy{background:var(--bg-dark);border-radius:var(--r-md);padding:18px 8px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text-on-dark);cursor:pointer}
+  .trophy{background:var(--bg-dark);border-radius:var(--r-md);padding:18px 8px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text-on-dark);cursor:pointer;aspect-ratio:1/1}
   .trophy:active{opacity:.85}
   .trophy .medal{width:34px;height:34px}
+  @media (min-width:1024px){.trophy-grid{grid-template-columns:repeat(3,minmax(0,180px))!important;max-width:560px!important}}
+  @media (min-width:768px) and (max-width:1023px){.trophy-grid{grid-template-columns:repeat(3,minmax(0,160px));max-width:520px;margin-left:0}}
   .trophy .medal svg{width:100%;height:100%}
-  .trophy .t-name{font-size:10px;font-weight:500;letter-spacing:.6px;text-transform:uppercase}
+  .trophy .t-name{font-size:10px;font-weight:500;letter-spacing:.3px;text-transform:uppercase}
   .trophy .t-count{font-size:18px;font-weight:500;font-feature-settings:"tnum" 1;letter-spacing:-.4px}
   .trophy.gold .t-name{color:var(--gold)} .trophy.silver .t-name{color:var(--silver)} .trophy.bronze .t-name{color:var(--bronze)}
 
@@ -128,7 +139,9 @@
   .streak .loss{background:var(--bg-subtle);color:#5a5a52}
   .streak .empty{background:transparent;border:1px dashed var(--border);color:var(--text-tertiary);cursor:default}
 
-  .empty-state{padding:22px 12px;text-align:center;color:var(--text-secondary)}
+  .empty-state{padding:32px 12px;text-align:center;color:var(--text-secondary)}
+  .empty-state .e-icon{width:56px;height:56px;margin:0 auto 14px;opacity:.4}
+  .empty-state .e-icon svg{width:100%;height:100%}
   .empty-state .e-title{font-size:15px;color:var(--text-primary);margin-bottom:6px;font-weight:500}
   .empty-state .e-sub{font-size:13px;line-height:1.5}
 
@@ -146,7 +159,7 @@
   .event-card:active{background:var(--bg-subtle)}
   .event-card .date{flex:0 0 44px;text-align:center}
   .event-card .date .d{font-size:22px;font-weight:500;letter-spacing:-.8px;line-height:1;font-feature-settings:"tnum" 1}
-  .event-card .date .m{font-size:10px;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;letter-spacing:.4px;font-weight:500}
+  .event-card .date .m{font-size:10px;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;letter-spacing:.3px;font-weight:500}
   .event-card .main{flex:1;min-width:0}
   .event-card .t{font-size:14.5px;font-weight:500;line-height:1.25}
   .event-card .s{font-size:12px;color:var(--text-secondary);margin-top:3px}
@@ -163,7 +176,7 @@
   .hero .badge{font-size:10.5px;letter-spacing:1px;font-weight:500;text-transform:uppercase;color:var(--gold)}
   .hero .place{display:flex;align-items:baseline;gap:10px;margin-top:18px}
   .hero .place .n{font-size:68px;line-height:.9;font-weight:500;letter-spacing:-4px;font-feature-settings:"tnum" 1}
-  .hero .place .l{font-size:13px;letter-spacing:.8px;font-weight:500;text-transform:uppercase}
+  .hero .place .l{font-size:13px;letter-spacing:.3px;font-weight:500;text-transform:uppercase}
   .hero .medal-text{margin-top:10px;font-size:16px;font-weight:500}
   .hero .meta{margin-top:3px;font-size:12px;color:var(--text-on-dark-dim)}
   .hero .ring{position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:999px;border:1.5px solid rgba(212,175,55,.35)}
@@ -172,7 +185,7 @@
 
   .two-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
   .mini-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px}
-  .mini-card .k{font-size:10.5px;letter-spacing:.7px;color:var(--text-secondary);text-transform:uppercase;font-weight:500}
+  .mini-card .k{font-size:10.5px;letter-spacing:.3px;color:var(--text-secondary);text-transform:uppercase;font-weight:500}
   .mini-card .v{margin-top:10px;font-size:24px;font-weight:500;letter-spacing:-.8px;font-feature-settings:"tnum" 1}
   .mini-card .v sup{font-size:12px;font-weight:500;margin-left:1px;color:var(--text-secondary)}
   .mini-card .sub{margin-top:4px;font-size:12px;color:var(--text-secondary)}
@@ -195,7 +208,7 @@
   .fight.final .info .op,.fight.final .info .r{color:var(--gold)}
 
   /* Разбор */
-  .kicker{margin-top:24px;font-size:11px;letter-spacing:.9px;text-transform:uppercase;color:var(--text-secondary);font-weight:500}
+  .kicker{margin-top:24px;font-size:11px;letter-spacing:.3px;text-transform:uppercase;color:var(--text-secondary);font-weight:500}
   h1.opp{font-size:22px;font-weight:500;letter-spacing:-.4px;margin-top:10px;line-height:1.2}
   .opp-sub{margin-top:6px;font-size:13.5px;color:var(--text-secondary)}
 
@@ -206,14 +219,14 @@
 
   .note{margin-top:12px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px;position:relative}
   .note .bar{position:absolute;left:14px;top:17px;width:3px;height:12px;border-radius:2px}
-  .note .head{padding-left:14px;font-size:10.5px;letter-spacing:.9px;text-transform:uppercase;font-weight:500}
+  .note .head{padding-left:14px;font-size:10.5px;letter-spacing:.3px;text-transform:uppercase;font-weight:500}
   .note.ok .bar{background:var(--success)}.note.ok .head{color:var(--success)}
   .note.bad .bar{background:var(--danger)}.note.bad .head{color:var(--danger)}
   .note textarea{width:100%;margin-top:10px;border:none;background:transparent;font-size:13.5px;line-height:1.5;color:var(--text-primary);outline:none;resize:vertical;min-height:60px;font-family:inherit;padding:0}
 
   .repeat{margin-top:12px;background:var(--bg-dark);color:var(--text-on-dark);border-radius:var(--r-md);padding:16px 18px}
   .repeat .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-  .repeat .head{font-size:11px;letter-spacing:.9px;text-transform:uppercase;font-weight:500;color:var(--gold)}
+  .repeat .head{font-size:11px;letter-spacing:.3px;text-transform:uppercase;font-weight:500;color:var(--gold)}
   .repeat .count{font-size:11px;color:var(--text-on-dark-dim);text-align:right;line-height:1.25}
   .repeat p{margin-top:12px;font-size:13.5px;line-height:1.5}
 
@@ -228,12 +241,12 @@
   /* Статы */
   .kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
   .kpi{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--r-md);padding:14px}
-  .kpi .k{font-size:10.5px;letter-spacing:.7px;color:var(--text-secondary);text-transform:uppercase;font-weight:500}
+  .kpi .k{font-size:10.5px;letter-spacing:.3px;color:var(--text-secondary);text-transform:uppercase;font-weight:500}
   .kpi .v{margin-top:10px;font-size:24px;font-weight:500;letter-spacing:-.8px;font-feature-settings:"tnum" 1}
   .kpi .v sup{font-size:12px;margin-left:1px;color:var(--text-secondary)}
 
   .bars{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--r-md);padding:16px;margin-top:12px}
-  .bars h3{font-size:11px;letter-spacing:.7px;text-transform:uppercase;color:var(--text-secondary);font-weight:500;margin-bottom:14px}
+  .bars h3{font-size:11px;letter-spacing:.3px;text-transform:uppercase;color:var(--text-secondary);font-weight:500;margin-bottom:14px}
   .bars .bar-row{display:grid;grid-template-columns:100px 1fr 30px;gap:10px;align-items:center;margin-bottom:10px}
   .bars .bar-row:last-child{margin-bottom:0}
   .bars .bar-row .nm{font-size:12.5px}
@@ -241,9 +254,10 @@
   .bars .bar-row .tr>div{height:100%;background:var(--bg-dark);border-radius:3px}
   .bars .bar-row .nu{text-align:right;font-size:12px;color:var(--text-secondary);font-feature-settings:"tnum" 1}
 
-  .insight{margin-top:14px;background:var(--bg-dark);color:var(--text-on-dark);border-radius:var(--r-md);padding:16px 18px}
-  .insight .h{font-size:10.5px;letter-spacing:.9px;text-transform:uppercase;font-weight:500;color:var(--gold);margin-bottom:8px}
-  .insight p{font-size:13.5px;line-height:1.5}
+  .insight{margin-top:14px;background:var(--bg-dark);color:var(--text-on-dark);border-radius:var(--r-md);padding:18px 22px 20px;position:relative;overflow:hidden}
+  .insight::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;background:var(--gold);border-radius:0 2px 2px 0}
+  .insight .h{font-size:10.5px;letter-spacing:.3px;text-transform:uppercase;font-weight:500;color:var(--gold);margin-bottom:10px}
+  .insight p{font-size:13.5px;line-height:1.6}
 
   /* Онбординг */
   .ob{flex:1;display:flex;flex-direction:column}
@@ -379,7 +393,7 @@ function viewProfile(){
     <div class="streak">
       ${Array.from({length:10},(_,i)=>{const f=last[i];if(!f)return'<div class="cell empty">·</div>';const cls=f.result==='win'?'win':'loss';const txt=f.result==='win'?'П':(f.result==='loss'?'Пр':'Н');return `<div class="cell ${cls}" data-go-fight="${f.id}">${txt}</div>`}).join('')}
     </div>
-    ${state.events.length===0?`<div class="empty-state" style="margin-top:24px"><div class="e-title">Пока пусто</div><div class="e-sub">Добавь первый турнир — статистика соберётся сама.</div><button class="btn btn-primary" style="margin-top:16px;max-width:240px" data-go="event-new">Добавить турнир</button></div>`:''}
+    ${state.events.length===0?`<div class="empty-state" style="margin-top:24px"><div class="e-icon">${medalIcon('#d4af37')}</div><div class="e-title">Пока пусто</div><div class="e-sub">Добавь первый турнир — статистика соберётся сама.</div><button class="btn btn-primary" style="margin-top:16px;max-width:240px" data-go="event-new">Добавить турнир</button></div>`:''}
   `;
 }
 
@@ -426,7 +440,7 @@ function viewEventDetail(id){
     <div class="bracket-label"><span class="label">Сетка боёв</span><button data-go="fight-new" data-id="${e.id}">+ бой</button></div>
     <div class="bracket">${f.length?f.map(fightRow).join(''):`<div class="empty-state"><div class="e-sub">Боёв пока нет. Добавь первый.</div></div>`}</div>
     ${e.notes?`<div style="margin-top:22px"><div class="label">Заметки</div><div style="margin-top:8px;font-size:13.5px;line-height:1.5">${esc(e.notes)}</div></div>`:''}
-    <div style="margin-top:28px"><button class="btn btn-danger" data-del-event="${e.id}">Удалить турнир</button></div>
+    <div style="margin-top:36px"><button class="btn-subtle-danger" data-del-event="${e.id}">Удалить турнир</button></div>
   `;
 }
 function fightRow(f){
@@ -513,7 +527,7 @@ function viewFightForm(mode,params){
       <div class="note bad"><span class="bar"></span><div class="head">Не сработало</div><textarea name="didntWork" placeholder="Ошибки, пропущенные удары">${esc(d.didntWork||'')}</textarea></div>
       ${rep.length?`<div class="repeat"><div class="top"><div class="head">Повторяется</div><div class="count">3+ боя<br/>подряд</div></div><p>«${esc(rep[0])}» — встречается в последних боях. Стоит поднять приоритет на тренировках.</p></div>`:''}
       <div style="margin-top:22px"><button type="submit" class="btn btn-primary">${mode==='new'?'Добавить бой':'Сохранить'}</button></div>
-      ${f?`<div style="margin-top:10px"><button type="button" class="btn btn-danger" data-del-fight="${f.id}">Удалить бой</button></div>`:''}
+      ${f?`<div style="margin-top:18px"><button type="button" class="btn-subtle-danger" data-del-fight="${f.id}">Удалить бой</button></div>`:''}
     </form>`;
 }
 
