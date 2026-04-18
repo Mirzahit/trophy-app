@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
-<meta name="theme-color" content="#1a1a1a" />
+<meta name="theme-color" content="#0a1420" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Trophy" />
@@ -16,15 +16,29 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 <style>
   :root{
-    --bg-primary:#f7f4ec; --bg-secondary:#ffffff; --bg-dark:#1a1a1a; --bg-subtle:#ebe7dd;
-    --text-primary:#1a1a1a; --text-secondary:#8a8880; --text-tertiary:#a8a69c;
-    --text-on-dark:#f7f4ec; --text-on-dark-dim:#a8a69c;
-    --gold:#d4af37; --gold-soft:#c9a545; --silver:#b8b6b0; --bronze:#cd7f32;
-    --success:#2d6a4f; --danger:#c94f4f; --border:#e6e1d5;
+    /* Тёмная тема с teal-акцентом */
+    --bg-primary:#0a1420;           /* глубокий навигационно-тёмный фон */
+    --bg-secondary:#14202e;          /* карточки, блоки */
+    --bg-card:#1a2835;               /* более светлые карточки */
+    --bg-dark:#1a2835;               /* совместимость со старыми "акцентными тёмными" карточками */
+    --bg-subtle:#1e2a38;              /* разделители */
+    --text-primary:#e8eef5;           /* почти белый */
+    --text-secondary:#7a8a9a;         /* приглушённый серый */
+    --text-tertiary:#4e5a6b;          /* ещё темнее */
+    --text-on-dark:#e8eef5;
+    --text-on-dark-dim:#7a8a9a;
+    --accent:#00e5a0;                 /* главный акцент teal */
+    --accent-dim:#00b87f;
+    --accent-soft:#006a4a;            /* тёмный вариант для фонов */
+    /* Совместимость со старыми gold-ссылками (теперь ведут на teal) */
+    --gold:#00e5a0; --gold-soft:#00c488;
+    --silver:#95a5ba; --bronze:#b28860;
+    --success:#00e5a0; --danger:#ff5577; --warning:#ffb347;
+    --border:#1e2a38;
     --r-sm:10px; --r-md:14px; --r-lg:20px; --r-xl:28px;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
-  html,body{background:#0a0a0a;font-family:'Inter',system-ui,-apple-system,sans-serif;color:var(--text-primary);overscroll-behavior:none}
+  html,body{background:var(--bg-primary);font-family:'Inter',system-ui,-apple-system,sans-serif;color:var(--text-primary);overscroll-behavior:none}
   body{min-height:100vh;display:flex;justify-content:center;align-items:stretch}
   button{font:inherit;cursor:pointer;border:none;background:none;color:inherit;text-align:left}
   input,textarea,select{font:inherit;color:inherit}
@@ -57,17 +71,24 @@
   @media (display-mode:standalone){body{padding:0} #shell{border-radius:0;box-shadow:none;max-height:none}}
 
   /* Сайдбар */
-  #sidebar .brand{display:flex;align-items:center;gap:10px;padding:4px 10px;margin-bottom:22px}
-  #sidebar .brand .logo{width:32px;height:32px;border-radius:8px;background:var(--bg-dark);display:flex;align-items:center;justify-content:center}
-  #sidebar .brand .logo svg{width:20px;height:20px}
-  #sidebar .brand .name{font-size:15px;font-weight:500;letter-spacing:-.3px}
-  #sidebar .s-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;font-size:13.5px;color:var(--text-secondary);width:100%;transition:background .1s;cursor:pointer;margin-bottom:2px}
-  #sidebar .s-item:hover{background:var(--bg-subtle)}
-  #sidebar .s-item.on{background:var(--bg-dark);color:var(--text-on-dark);font-weight:500}
-  #sidebar .s-item.on:hover{background:var(--bg-dark)}
+  #sidebar{background:var(--bg-secondary);border-right-color:var(--border)}
+  #sidebar .brand{display:flex;align-items:center;gap:10px;padding:6px 10px;margin-bottom:22px}
+  #sidebar .brand .logo{width:38px;height:38px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:18px;color:#0a1420;letter-spacing:-1px;flex-shrink:0}
+  #sidebar .brand .logo-text{display:flex;flex-direction:column;gap:2px;line-height:1}
+  #sidebar .brand .name{font-size:15px;font-weight:600;letter-spacing:-.3px;color:var(--text-primary)}
+  #sidebar .brand .subtitle{font-size:9.5px;font-weight:500;letter-spacing:.8px;color:var(--accent);text-transform:uppercase}
+  #sidebar .s-group-label{font-size:9.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--text-tertiary);font-weight:500;padding:12px 14px 6px}
+  #sidebar .s-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:10px;font-size:13px;color:var(--text-secondary);width:100%;transition:background .1s,color .1s;cursor:pointer;margin-bottom:2px}
+  #sidebar .s-item:hover{background:var(--bg-card);color:var(--text-primary)}
+  #sidebar .s-item.on{background:var(--bg-card);color:var(--accent);font-weight:500}
+  #sidebar .s-item.on:hover{background:var(--bg-card);color:var(--accent)}
+  #sidebar .s-item .s-badge{font-size:10.5px;padding:2px 8px;border-radius:999px;background:var(--bg-card);color:var(--text-secondary);font-weight:500;font-feature-settings:"tnum" 1}
+  #sidebar .s-item .s-badge.red{background:var(--danger);color:#fff}
   #sidebar .s-sep{flex:1}
   #sidebar .s-div{height:1px;background:var(--border);margin:14px 8px}
-  #sidebar .s-foot{font-size:11px;color:var(--text-tertiary);padding:10px 14px;line-height:1.5}
+  #sidebar .s-foot{font-size:10.5px;color:var(--text-tertiary);padding:10px 14px;line-height:1.5}
+  #sidebar .s-cta{margin:6px 4px 10px;display:block;text-align:center;padding:12px 14px;background:var(--accent);color:#0a1420;border-radius:10px;font-size:12.5px;font-weight:600;letter-spacing:.2px;cursor:pointer;border:none;width:calc(100% - 8px)}
+  #sidebar .s-cta:hover{background:var(--accent-dim)}
 
   #app{flex:1;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;padding:18px 22px 20px;-webkit-overflow-scrolling:touch}
   @media (min-width:1024px){
@@ -98,9 +119,11 @@
 
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 18px;border-radius:var(--r-md);font-weight:500;font-size:14px;letter-spacing:-.1px;transition:opacity .15s}
   .btn:active{opacity:.75}
-  .btn-primary{background:var(--bg-dark);color:var(--text-on-dark);width:100%}
-  .btn-ghost{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border);width:100%}
-  .btn-danger{background:transparent;color:var(--danger);border:1px solid rgba(201,79,79,.3);width:100%}
+  .btn-primary{background:var(--accent);color:#0a1420;width:100%;font-weight:600}
+  .btn-primary:hover{background:var(--accent-dim)}
+  .btn-ghost{background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border);width:100%}
+  .btn-ghost:hover{border-color:var(--text-secondary)}
+  .btn-danger{background:transparent;color:var(--danger);border:1px solid rgba(255,85,119,.4);width:100%}
   .btn-subtle-danger{background:transparent;color:var(--text-tertiary);font-size:12.5px;font-weight:400;padding:10px 14px;text-align:center;width:100%;letter-spacing:-.1px}
   .btn-subtle-danger:hover{color:var(--danger)}
   .btn-link{padding:8px 0;color:var(--text-primary);font-weight:500;font-size:13.5px}
@@ -142,8 +165,8 @@
   /* ===== «Сегодня» — главный экран ===== */
   .hero-today{margin-top:18px;background:var(--bg-dark);color:var(--text-on-dark);border-radius:var(--r-lg);padding:24px;position:relative;overflow:hidden;cursor:pointer}
   .hero-today:active{opacity:.95}
-  .hero-today .ring{position:absolute;right:-80px;top:-80px;width:240px;height:240px;border-radius:999px;border:1.5px solid rgba(212,175,55,.25);pointer-events:none}
-  .hero-today .ring::after{content:"";position:absolute;inset:40px;border-radius:999px;border:1.5px solid rgba(212,175,55,.14)}
+  .hero-today .ring{position:absolute;right:-80px;top:-80px;width:240px;height:240px;border-radius:999px;border:1.5px solid rgba(0,229,160,.25);pointer-events:none}
+  .hero-today .ring::after{content:"";position:absolute;inset:40px;border-radius:999px;border:1.5px solid rgba(0,229,160,.14)}
   .hero-today .badge{font-size:10.5px;letter-spacing:.5px;font-weight:500;text-transform:uppercase;color:var(--gold)}
   .hero-today .hero-count{display:flex;align-items:baseline;gap:10px;margin-top:14px}
   .hero-today .hero-count .n{font-size:64px;line-height:.9;font-weight:500;letter-spacing:-3px;font-feature-settings:"tnum" 1}
@@ -153,7 +176,7 @@
   .hero-today .hero-count .unit{font-size:13px;font-weight:500;letter-spacing:.3px;text-transform:uppercase;color:var(--text-on-dark-dim)}
   .hero-today .hero-title{margin-top:14px;font-size:18px;font-weight:500;line-height:1.25}
   .hero-today .hero-sub{margin-top:6px;font-size:12.5px;color:var(--text-on-dark-dim)}
-  .hero-today .hero-chip{display:inline-block;margin-top:14px;background:rgba(212,175,55,.15);color:var(--gold);padding:7px 12px;border-radius:999px;font-size:12px;font-weight:500;border:1px solid rgba(212,175,55,.3)}
+  .hero-today .hero-chip{display:inline-block;margin-top:14px;background:rgba(0,229,160,.15);color:var(--gold);padding:7px 12px;border-radius:999px;font-size:12px;font-weight:500;border:1px solid rgba(0,229,160,.3)}
   .hero-today.empty .hero-title{font-size:22px;margin-top:16px}
   .hero-today.last .hero-chip{background:transparent;border-color:rgba(247,244,236,.2);color:var(--text-on-dark-dim)}
 
@@ -223,12 +246,12 @@
   .empty-state .e-title{font-size:15px;color:var(--text-primary);margin-bottom:6px;font-weight:500}
   .empty-state .e-sub{font-size:13px;line-height:1.5}
 
-  .tabs{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border);background:var(--bg-primary);padding:10px 0 calc(10px + env(safe-area-inset-bottom));flex-shrink:0}
+  .tabs{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border);background:var(--bg-secondary);padding:10px 0 calc(10px + env(safe-area-inset-bottom));flex-shrink:0}
   .tabs .tab{padding:6px 0;text-align:center;font-size:11.5px;color:var(--text-secondary);position:relative}
-  .tabs .tab.on{color:var(--text-primary);font-weight:500}
-  .tabs .tab.on::before{content:"";position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:999px;background:var(--text-primary)}
+  .tabs .tab.on{color:var(--accent);font-weight:500}
+  .tabs .tab.on::before{content:"";position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:999px;background:var(--accent)}
 
-  .fab{position:absolute;right:20px;bottom:88px;width:56px;height:56px;border-radius:999px;background:var(--bg-dark);color:var(--text-on-dark);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:300;box-shadow:0 8px 24px -6px rgba(0,0,0,.4);z-index:5}
+  .fab{position:absolute;right:20px;bottom:88px;width:56px;height:56px;border-radius:999px;background:var(--accent);color:#0a1420;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:400;box-shadow:0 8px 24px -6px rgba(0,0,0,.6),0 0 0 4px rgba(0,229,160,.1);z-index:5}
   .fab:active{transform:scale(.96)}
 
   /* Турниры */
@@ -285,8 +308,8 @@
   .hero .place .l{font-size:13px;letter-spacing:.3px;font-weight:500;text-transform:uppercase}
   .hero .medal-text{margin-top:10px;font-size:16px;font-weight:500}
   .hero .meta{margin-top:3px;font-size:12px;color:var(--text-on-dark-dim)}
-  .hero .ring{position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:999px;border:1.5px solid rgba(212,175,55,.35)}
-  .hero .ring::after{content:"";position:absolute;inset:30px;border-radius:999px;border:1.5px solid rgba(212,175,55,.18)}
+  .hero .ring{position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:999px;border:1.5px solid rgba(0,229,160,.35)}
+  .hero .ring::after{content:"";position:absolute;inset:30px;border-radius:999px;border:1.5px solid rgba(0,229,160,.18)}
   .hero.pending .n{font-size:22px;letter-spacing:-.5px}
 
   .two-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
@@ -307,10 +330,10 @@
   .fight .info .op{font-size:13.5px;font-weight:500}
   .fight .info .r{font-size:12px;color:var(--text-secondary);margin-top:2px}
   .fight .mark{flex:0 0 26px;height:26px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500}
-  .fight .mark.w{background:var(--gold-soft);color:#1a1a1a}
+  .fight .mark.w{background:var(--gold-soft);color:#0a1420}
   .fight .mark.l,.fight .mark.d{background:var(--bg-subtle);color:#5a5a52}
   .fight.final{background:var(--bg-dark);border-color:var(--bg-dark);color:var(--text-on-dark)}
-  .fight.final .no{background:var(--gold-soft);color:#1a1a1a}
+  .fight.final .no{background:var(--gold-soft);color:#0a1420}
   .fight.final .info .op,.fight.final .info .r{color:var(--gold)}
 
   /* Разбор */
@@ -363,8 +386,8 @@
   /* Распределение мест */
   .place-stack{display:flex;height:28px;border-radius:6px;overflow:hidden;background:var(--bg-subtle);margin-bottom:12px}
   .place-stack .ps{display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:500;min-width:0}
-  .place-stack .ps.g{background:var(--gold);color:#1a1a1a}
-  .place-stack .ps.s{background:var(--silver);color:#1a1a1a}
+  .place-stack .ps.g{background:var(--gold);color:#0a1420}
+  .place-stack .ps.s{background:var(--silver);color:#0a1420}
   .place-stack .ps.b{background:var(--bronze);color:#fff}
   .place-stack .ps.n{background:#d1cdc0;color:#5a5a52}
   .place-stack .ps span{font-feature-settings:"tnum" 1}
@@ -406,7 +429,7 @@
   .goal-box.achieved .gb-status{background:var(--success);color:#fff}
   .goal-box.missed{border-color:var(--danger);background:#fbeeee}
   .goal-box.missed .gb-status{background:var(--danger);color:#fff}
-  .goal-box.pending .gb-status{background:var(--gold);color:#1a1a1a}
+  .goal-box.pending .gb-status{background:var(--gold);color:#0a1420}
 
   /* Раздел Тренировки */
   .streak-big{background:var(--bg-dark);color:var(--text-on-dark);border-radius:var(--r-lg);padding:24px 24px 22px;text-align:left;position:relative;overflow:hidden}
@@ -414,7 +437,7 @@
   .streak-big .sb-label{font-size:10.5px;letter-spacing:.3px;text-transform:uppercase;color:var(--gold);font-weight:500}
   .streak-big .sb-value{font-size:68px;font-weight:500;letter-spacing:-3px;line-height:.9;margin-top:10px;font-feature-settings:"tnum" 1}
   .streak-big .sb-unit{font-size:13px;color:var(--text-on-dark-dim);margin-top:6px}
-  .streak-big .btn-primary{background:var(--gold);color:#1a1a1a}
+  .streak-big .btn-primary{background:var(--gold);color:#0a1420}
 
   .day-bars{display:flex;gap:3px;align-items:flex-end;height:52px;margin-top:10px}
   .day-bars .db-col{flex:1;min-width:0}
@@ -511,7 +534,7 @@
   .tr-done{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px;margin-top:6px;font-size:12.5px}
   .tr-done .x{margin-left:auto;color:var(--text-tertiary);font-size:16px;cursor:pointer;background:none;border:none}
 
-  .toast{position:fixed;bottom:120px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#f7f4ec;padding:10px 18px;border-radius:999px;font-size:13.5px;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:in .2s ease}
+  .toast{position:fixed;bottom:120px;left:50%;transform:translateX(-50%);background:#1a2835;color:#e8eef5;padding:10px 18px;border-radius:999px;font-size:13.5px;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:in .2s ease}
   @keyframes in{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
 </style>
 </head>
@@ -887,7 +910,7 @@ function viewCoachDashboard(){
 
     ${as.length ? `<div class="ath-list">${as.map(a=>athleteCardHtml(a)).join('')}</div>` : `
       <div class="empty-state" style="margin-top:20px">
-        <div class="e-icon">${medalIcon('#d4af37')}</div>
+        <div class="e-icon">${medalIcon('#00e5a0')}</div>
         <div class="e-title">Пока ни одного спортсмена</div>
         <div class="e-sub">Добавь первого — будешь видеть его турниры, результаты, форму и прогресс.</div>
         <button class="btn btn-primary" style="margin-top:16px;max-width:260px" data-go="athlete-add">Добавить спортсмена</button>
@@ -1058,7 +1081,7 @@ function viewProfile(){
       </div>
     ` : `
       <div class="empty-state" style="margin-top:24px">
-        <div class="e-icon">${medalIcon('#d4af37')}</div>
+        <div class="e-icon">${medalIcon('#00e5a0')}</div>
         <div class="e-title">Пока пусто</div>
         <div class="e-sub">Добавь первый турнир — статистика соберётся сама.</div>
         <button class="btn btn-primary" style="margin-top:16px;max-width:240px" data-go="event-new">Добавить турнир</button>
@@ -1081,7 +1104,7 @@ function viewEvents(){
     ${mode==='list' ? `
       ${up.length?`<div class="event-group"><div class="label">Предстоящие</div>${up.map(eventCard).join('')}</div>`:''}
       ${dn.length?`<div class="event-group"><div class="label">Завершённые</div>${dn.map(eventCard).join('')}</div>`:''}
-      ${all.length===0?`<div class="empty-state" style="margin-top:32px"><div class="e-icon">${medalIcon('#d4af37')}</div><div class="e-title">Ни одного турнира</div><div class="e-sub">Жми «+» внизу справа, чтобы добавить.</div></div>`:''}
+      ${all.length===0?`<div class="empty-state" style="margin-top:32px"><div class="e-icon">${medalIcon('#00e5a0')}</div><div class="e-title">Ни одного турнира</div><div class="e-sub">Жми «+» внизу справа, чтобы добавить.</div></div>`:''}
     ` : viewCalendar(all)}
     ${next ? `<div class="next-event"><div class="label" style="color:var(--gold)">Ближайший турнир</div><div class="nev-title">${esc(next.title)}</div><div class="nev-sub">${fmtDate(next.date)} · ${daysUntil(next.date)}</div></div>` : ''}
   `;
@@ -1353,7 +1376,7 @@ function viewStats(){
 
     ${Object.keys(la).length?`<div class="bars"><h3>По уровням турниров</h3>${Object.entries(la).map(([lv,x])=>{const p=x.t?Math.round(x.w/x.t*100):0;return `<div class="bar-row"><div class="nm">${esc(levelName(lv))}</div><div class="tr"><div style="width:${p}%"></div></div><div class="nu">${p}%</div></div>`}).join('')}</div>`:''}
 
-    ${tot===0?`<div class="empty-state"><div class="e-icon">${medalIcon('#d4af37')}</div><div class="e-title">Пока нет данных</div><div class="e-sub">Добавь турниры и бои — здесь появятся графики.</div></div>`:''}`;
+    ${tot===0?`<div class="empty-state"><div class="e-icon">${medalIcon('#00e5a0')}</div><div class="e-title">Пока нет данных</div><div class="e-sub">Добавь турниры и бои — здесь появятся графики.</div></div>`:''}`;
 }
 
 /* SVG-график динамики веса */
@@ -1369,13 +1392,13 @@ function weightChart(pts){
   const catY=y(cat);
   const last=pts[pts.length-1];
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">
-    <line x1="${pad.l}" y1="${catY}" x2="${W-pad.r}" y2="${catY}" stroke="#d4af37" stroke-width="1" stroke-dasharray="4 3" opacity=".7"/>
-    <text x="${W-pad.r}" y="${catY-4}" font-size="9" fill="#d4af37" text-anchor="end" font-family="Inter">лимит ${fmtN(cat)}</text>
-    <text x="4" y="${pad.t+8}" font-size="9" fill="#8a8880" font-family="Inter">${fmtN(maxW)}</text>
-    <text x="4" y="${H-pad.b+4}" font-size="9" fill="#8a8880" font-family="Inter">${fmtN(minW)}</text>
-    <polyline points="${poly}" fill="none" stroke="#1a1a1a" stroke-width="1.6" stroke-linejoin="round"/>
+    <line x1="${pad.l}" y1="${catY}" x2="${W-pad.r}" y2="${catY}" stroke="#00e5a0" stroke-width="1" stroke-dasharray="4 3" opacity=".7"/>
+    <text x="${W-pad.r}" y="${catY-4}" font-size="9" fill="#00e5a0" text-anchor="end" font-family="Inter">лимит ${fmtN(cat)}</text>
+    <text x="4" y="${pad.t+8}" font-size="9" fill="#7a8a9a" font-family="Inter">${fmtN(maxW)}</text>
+    <text x="4" y="${H-pad.b+4}" font-size="9" fill="#7a8a9a" font-family="Inter">${fmtN(minW)}</text>
+    <polyline points="${poly}" fill="none" stroke="#e8eef5" stroke-width="1.6" stroke-linejoin="round"/>
     ${pts.map((p,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(p.w).toFixed(1)}" r="${i===pts.length-1?3.2:2.2}" fill="${i===pts.length-1?'#d4af37':'#1a1a1a'}"/>`).join('')}
-    <text x="${x(pts.length-1)}" y="${y(last.w)-7}" font-size="10" fill="#1a1a1a" text-anchor="middle" font-family="Inter" font-weight="500">${fmtN(last.w)}</text>
+    <text x="${x(pts.length-1)}" y="${y(last.w)-7}" font-size="10" fill="#e8eef5" text-anchor="middle" font-family="Inter" font-weight="500">${fmtN(last.w)}</text>
   </svg>`;
 }
 function insight(){
@@ -1615,7 +1638,7 @@ function viewOpponents(){
           </div>`;
         }).join('')}
       </div>
-    ` : q ? `<div class="empty-state"><div class="e-sub">Никого не найдено.</div></div>` : `<div class="empty-state"><div class="e-icon">${medalIcon('#d4af37')}</div><div class="e-title">Пока пусто</div><div class="e-sub">После первого боя соперники появятся здесь автоматически.</div></div>`}
+    ` : q ? `<div class="empty-state"><div class="e-sub">Никого не найдено.</div></div>` : `<div class="empty-state"><div class="e-icon">${medalIcon('#00e5a0')}</div><div class="e-title">Пока пусто</div><div class="e-sub">После первого боя соперники появятся здесь автоматически.</div></div>`}
   `;
 }
 
@@ -1661,6 +1684,49 @@ function viewOpponentDetail(keyEnc){
       }).join('')}
     </div>
   `;
+}
+
+/* ===== Цели (раздел) ===== */
+function viewGoalsStub(){
+  const events=state.events.slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const upcoming=events.filter(e=>e.status==='upcoming' && e.goal?.type);
+  const past=events.filter(e=>e.status!=='upcoming' && e.goal?.type);
+  return `${sbar()}
+    <h1 class="name" style="font-size:24px">Цели</h1>
+    <div class="subtitle">Планы на турниры и их итоги</div>
+
+    ${upcoming.length ? `
+      <div class="label" style="margin-top:22px">Предстоящие</div>
+      <div class="stack" style="margin-top:10px">
+        ${upcoming.map(e=>goalRowHtml(e)).join('')}
+      </div>
+    ` : ''}
+
+    ${past.length ? `
+      <div class="label" style="margin-top:22px">Итоги</div>
+      <div class="stack" style="margin-top:10px">
+        ${past.map(e=>goalRowHtml(e)).join('')}
+      </div>
+    ` : ''}
+
+    ${!upcoming.length && !past.length ? `
+      <div class="empty-state" style="margin-top:32px">
+        <div class="e-title">Ни одной цели</div>
+        <div class="e-sub">Создай турнир и укажи на нём цель — она появится здесь и будет видна на Обзоре.</div>
+        <button class="btn btn-primary" style="margin-top:16px;max-width:240px" data-go="event-new">+ Новый турнир</button>
+      </div>
+    ` : ''}
+  `;
+}
+function goalRowHtml(e){
+  const st=eventGoalStatus(e);
+  return `<div class="goal-box ${st||''}" data-go-event="${e.id}" style="cursor:pointer">
+    <div>
+      <div class="gb-label">${fmtDate(e.date)} · ${esc(e.title)}</div>
+      <div class="gb-main">${esc(goalLabel(e.goal))}</div>
+    </div>
+    <div class="gb-status">${st==='achieved'?'Достигнута':st==='missed'?'Не достигнута':'В процессе'}</div>
+  </div>`;
 }
 
 function viewSettings(){
@@ -1729,48 +1795,50 @@ function renderSidebar(){
   if(!sb)return;
   if(state.role===null){ sb.innerHTML=''; return }
   const c=state.route.name;
+  const brand=(sub)=>`
+    <div class="brand">
+      <div class="logo">T</div>
+      <div class="logo-text"><div class="name">TROPHY</div><div class="subtitle">PRO · ${sub}</div></div>
+    </div>`;
 
-  // Меню тренера
   if(state.role==='coach'){
     const ath=currentAthlete();
-    sb.innerHTML=`
-      <div class="brand">
-        <div class="logo"><svg viewBox="0 0 40 40" fill="none" stroke="#d4af37" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 6 L10 16 M27 6 L30 16"/><circle cx="20" cy="24" r="10"/><circle cx="20" cy="24" r="5"/></svg></div>
-        <div class="name">Trophy</div>
-      </div>
-      ${ath ? `<div class="s-switch"><div class="s-switch-l">Сейчас просматриваю</div><div class="s-switch-n">${esc(ath.profile.firstName)} ${esc(ath.profile.lastName)}</div><button class="s-switch-back" data-go="coach-dashboard">← К команде</button></div>` : ''}
-      <button class="s-item ${c==='coach-dashboard'?'on':''}" data-go="coach-dashboard">Команда</button>
+    const teamCount=state.athletes.length;
+    // Подсчёт "разборов" — всех боёв без review хотя бы у одного спортсмена
+    const pendingReviews=state.athletes.reduce((s,a)=>s+((a.fights||[]).filter(f=>!f.worked&&!f.didntWork&&(!f.tags||!f.tags.length)).length),0);
+    sb.innerHTML=`${brand('COACH')}
+      <div class="s-group-label">Тренер</div>
+      <button class="s-item ${c==='coach-dashboard'?'on':''}" data-go="coach-dashboard"><span>Команда</span><span class="s-badge">${teamCount}</span></button>
+      <button class="s-item" data-go="reviews-queue"><span>Разборы</span>${pendingReviews?`<span class="s-badge red">${pendingReviews}</span>`:''}</button>
+      <button class="s-item ${c==='events'&&!ath?'on':''}" data-go="events">Календарь</button>
+      <button class="s-item ${c==='goals'?'on':''}" data-go="goals">Цели</button>
+      <button class="s-item" data-go="sparrings">Спарринги</button>
+      <button class="s-item ${c==='stats'?'on':''}" data-go="stats">Аналитика</button>
       ${ath ? `
-        <div class="s-sub-label">Спортсмен</div>
-        <button class="s-item ${c==='dashboard'?'on':''}" data-tab="dashboard">Дашборд</button>
-        <button class="s-item ${c==='events'?'on':''}" data-tab="events">Календарь боев</button>
-        <button class="s-item ${c==='trainings'?'on':''}" data-tab="trainings">Тренировки</button>
-        <button class="s-item ${c==='weight'?'on':''}" data-tab="weight">Вес</button>
+        <div class="s-div"></div>
+        <div class="s-group-label">Просмотр</div>
+        <div class="s-switch-name">${esc(ath.profile.firstName)} ${esc(ath.profile.lastName)}</div>
+        <button class="s-item ${c==='dashboard'?'on':''}" data-tab="dashboard">Обзор</button>
+        <button class="s-item ${c==='events'?'on':''}" data-tab="events">Турниры</button>
+        <button class="s-item ${c==='journal'?'on':''}" data-tab="journal">Дневник</button>
         <button class="s-item ${c==='opponents'?'on':''}" data-tab="opponents">Соперники</button>
-        <button class="s-item ${c==='stats'?'on':''}" data-tab="stats">Статистика</button>
       ` : ''}
-      <div class="s-div"></div>
-      <button class="s-item" data-go="athlete-add">+ Добавить спортсмена</button>
       <div class="s-sep"></div>
+      <button class="s-cta" data-go="athlete-add">+ Добавить атлета</button>
       <button class="s-item ${c==='settings'?'on':''}" data-go="settings">Настройки</button>
       <div class="s-foot">Trophy · работает оффлайн</div>
     `;
   } else {
-    // Меню спортсмена
-    sb.innerHTML=`
-      <div class="brand">
-        <div class="logo"><svg viewBox="0 0 40 40" fill="none" stroke="#d4af37" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 6 L10 16 M27 6 L30 16"/><circle cx="20" cy="24" r="10"/><circle cx="20" cy="24" r="5"/></svg></div>
-        <div class="name">Trophy</div>
-      </div>
-      <button class="s-item ${c==='dashboard'?'on':''}" data-tab="dashboard">Дашборд</button>
-      <button class="s-item ${c==='events'?'on':''}" data-tab="events">Календарь боев</button>
-      <button class="s-item ${c==='trainings'?'on':''}" data-tab="trainings">Тренировки</button>
-      <button class="s-item ${c==='weight'?'on':''}" data-tab="weight">Вес</button>
+    sb.innerHTML=`${brand('ATLET')}
+      <div class="s-group-label">Главное</div>
+      <button class="s-item ${c==='dashboard'?'on':''}" data-tab="dashboard">Обзор</button>
+      <button class="s-item ${c==='events'?'on':''}" data-tab="events">Турниры</button>
+      <button class="s-item ${c==='journal'?'on':''}" data-tab="journal">Дневник</button>
       <button class="s-item ${c==='opponents'?'on':''}" data-tab="opponents">Соперники</button>
-      <button class="s-item ${c==='stats'?'on':''}" data-tab="stats">Статистика</button>
-      <div class="s-div"></div>
-      <button class="s-item ${c==='event-new'?'on':''}" data-go="event-new">+ Новый турнир</button>
+      <button class="s-item ${c==='goals'?'on':''}" data-tab="goals">Цели</button>
+      <button class="s-item ${c==='stats'?'on':''}" data-tab="stats">Аналитика</button>
       <div class="s-sep"></div>
+      <button class="s-cta" data-go="event-new">+ Новый турнир</button>
       <button class="s-item ${c==='settings'?'on':''}" data-go="settings">Настройки</button>
       <div class="s-foot">Trophy · работает оффлайн</div>
     `;
@@ -1804,7 +1872,7 @@ function render(){
 
   // Редирект старых маршрутов
   if(state.route.name==='profile') state.route={name:'dashboard',params:{}};
-  if(state.route.name==='journal') state.route={name:'dashboard',params:{}};
+  // Дневник снова доступен из меню
 
   const r=state.route;let html='',tabs=true,fab=false;
 
@@ -1818,6 +1886,10 @@ function render(){
   }
   else if(r.name==='events'){html=viewEvents();fab=(state.role!=='coach')}
   else if(r.name==='stats'){html=viewStats()}
+  else if(r.name==='journal'){html=typeof viewJournal==='function'?viewJournal():'<div class="empty-state"><div class="e-sub">Журнал разборов — открывай из карточки боя.</div></div>'}
+  else if(r.name==='goals'){html=viewGoals?viewGoals():viewGoalsStub()}
+  else if(r.name==='sparrings'){html='<div class="empty-state" style="margin-top:40px"><div class="e-title">Спарринги</div><div class="e-sub">Раздел готовится. Пока спарринги можно отмечать в «Тренировках» с типом «Спарринг».</div></div>'}
+  else if(r.name==='reviews-queue'){html='<div class="empty-state" style="margin-top:40px"><div class="e-title">Очередь разборов</div><div class="e-sub">Показывает бои спортсменов без заполненного разбора. Скоро появится список.</div></div>'}
   else if(r.name==='trainings'){html=viewTrainings?viewTrainings():('<div class="empty-state">Раздел «Тренировки» — в следующем обновлении.</div>')}
   else if(r.name==='weight'){html=viewWeight?viewWeight():('<div class="empty-state">Раздел «Вес» — в следующем обновлении.</div>')}
   else if(r.name==='opponents'){html=viewOpponents?viewOpponents():('<div class="empty-state">Раздел «Соперники» — в следующем обновлении.</div>')}
