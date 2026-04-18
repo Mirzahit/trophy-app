@@ -507,6 +507,41 @@
   .op-score.loss{color:var(--danger)}
   .op-score.draw{color:var(--text-secondary)}
 
+  /* Аватар */
+  .avatar-row{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+  .avatar-preview{width:72px;height:72px;border-radius:999px;background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+  .avatar-preview img{width:100%;height:100%;object-fit:cover}
+  .avatar-preview span{font-size:22px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px}
+  .avatar-actions{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .avatar-actions .btn{height:auto;padding:10px 14px;font-size:13px}
+  .avatar-actions .btn-link{padding:2px 0;font-size:12px;color:var(--text-secondary)}
+
+  /* Аватар в шапке обзора и списке профилей */
+  .oh-avatar{width:28px;height:28px;border-radius:999px;background:var(--bg-card);border:1px solid var(--border);overflow:hidden;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--text-secondary)}
+  .oh-avatar img{width:100%;height:100%;object-fit:cover}
+
+  /* Список профилей в Настройках */
+  .profiles-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .profile-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--r-md);cursor:pointer;transition:border-color .1s}
+  .profile-item:hover{border-color:var(--text-secondary)}
+  .profile-item.active{border-color:var(--accent)}
+  .profile-item .pi-av{width:36px;height:36px;border-radius:999px;background:var(--bg-card);overflow:hidden;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--text-secondary);flex-shrink:0}
+  .profile-item .pi-av img{width:100%;height:100%;object-fit:cover}
+  .profile-item .pi-main{flex:1;min-width:0}
+  .profile-item .pi-t{font-size:13.5px;font-weight:500}
+  .profile-item .pi-s{font-size:11.5px;color:var(--text-secondary);margin-top:2px}
+  .profile-item .pi-on{font-size:10px;letter-spacing:.3px;text-transform:uppercase;color:var(--accent);font-weight:500}
+
+  /* Переключатель профилей в сайдбаре */
+  #sidebar .s-profile{display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:10px;background:var(--bg-card);border-radius:10px;cursor:pointer;border:1px solid var(--border)}
+  #sidebar .s-profile:hover{border-color:var(--text-secondary)}
+  #sidebar .s-profile .sp-av{width:32px;height:32px;border-radius:999px;background:var(--bg-primary);overflow:hidden;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--text-secondary);flex-shrink:0}
+  #sidebar .s-profile .sp-av img{width:100%;height:100%;object-fit:cover}
+  #sidebar .s-profile .sp-main{flex:1;min-width:0}
+  #sidebar .s-profile .sp-t{font-size:12.5px;font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #sidebar .s-profile .sp-s{font-size:10.5px;color:var(--text-secondary);margin-top:2px}
+  #sidebar .s-profile .sp-arrow{color:var(--text-tertiary);font-size:14px}
+
   /* Выбор роли */
   .role-cards{display:flex;flex-direction:column;gap:12px}
   @media (min-width:768px){.role-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}}
@@ -744,6 +779,41 @@ function save(){
 }
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 
+/* Ресайз изображения до квадратного аватара (256×256) и получение dataURL */
+function resizeImage(file,size=256){
+  return new Promise((resolve,reject)=>{
+    const fr=new FileReader();
+    fr.onerror=reject;
+    fr.onload=()=>{
+      const img=new Image();
+      img.onerror=reject;
+      img.onload=()=>{
+        const s=Math.min(img.width,img.height);
+        const sx=(img.width-s)/2, sy=(img.height-s)/2;
+        const c=document.createElement('canvas');
+        c.width=size; c.height=size;
+        c.getContext('2d').drawImage(img,sx,sy,s,s,0,0,size,size);
+        resolve(c.toDataURL('image/jpeg',0.82));
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+function attachAvatarUpload(){
+  const inp=document.getElementById('avatar-input'),prev=document.getElementById('avatar-preview'),hid=document.getElementById('avatar-uri'),rem=document.getElementById('avatar-remove');
+  if(!inp||!prev||!hid) return;
+  inp.onchange=async()=>{
+    const f=inp.files[0]; if(!f) return;
+    try{
+      const url=await resizeImage(f,256);
+      hid.value=url;
+      prev.innerHTML=`<img src="${url}"/>`;
+    }catch(e){toast('Не удалось загрузить фото')}
+  };
+  if(rem)rem.onclick=()=>{hid.value='';prev.innerHTML='<span>?</span>'};
+}
+
 /* === Утилиты === */
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function fmtDate(iso){if(!iso)return'';const d=new Date(iso);return d.getDate()+' '+MONTHS_F[d.getMonth()]+' '+d.getFullYear()}
@@ -810,15 +880,30 @@ const medalIcon=c=>`<svg viewBox="0 0 40 40" fill="none" stroke="${c}" stroke-wi
 function sbar(){const t=new Date();return `<div class="sbar"><span>${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}</span><span class="dots">· · ·</span></div>`}
 
 function viewOnboarding(){
-  const p=state.profile||{};
+  const p=(state.route.name==='athlete-add')?{}:(state.profile||{});
   const coachMode = state.role==='coach';
+  const isAddProfile = state.route.name==='athlete-add';
+  // Заголовки под контекст
+  let title='Твой цифровой трофейный зал', subtitle='Записывай бои, смотри прогресс, веди дневник ошибок. Всё оффлайн и сохраняется в этом браузере.', label='Новый спортсмен', backBtn='';
+  if(isAddProfile){
+    if(coachMode){ label='Добавление спортсмена'; title='Новый спортсмен'; subtitle=''; backBtn=`<button class="btn-link" data-go="coach-dashboard" style="padding:0;margin-bottom:14px">← К команде</button>`; }
+    else { label='Новый вид спорта'; title='Ещё один профиль'; subtitle='Вторая весовая, другой спорт — отдельный профиль с независимой статистикой.'; backBtn=`<button class="btn-link" data-back style="padding:0;margin-bottom:14px">← Назад</button>`; }
+  }
   return `${sbar()}
   <div class="ob">
-    ${coachMode?`<button class="btn-link" data-go="coach-dashboard" style="padding:0;margin-bottom:14px">← К команде</button>`:''}
-    <div class="label">${coachMode?'Добавление спортсмена':'Новый спортсмен'}</div>
-    <h1>${coachMode?'Новый спортсмен':'Твой цифровой трофейный зал'}</h1>
-    ${!coachMode?'<div class="sub">Записывай бои, смотри прогресс, веди дневник ошибок. Всё оффлайн и сохраняется в этом браузере.</div>':''}
+    ${backBtn}
+    <div class="label">${label}</div>
+    <h1>${title}</h1>
+    ${subtitle?`<div class="sub">${subtitle}</div>`:''}
     <form id="ob-form" style="margin-top:28px;flex:1;display:flex;flex-direction:column">
+      <div class="avatar-row">
+        <div class="avatar-preview" id="avatar-preview">${p.avatarUri?`<img src="${esc(p.avatarUri)}"/>`:`<span>${(p.firstName?p.firstName[0]:'?').toUpperCase()}${(p.lastName?p.lastName[0]:'').toUpperCase()}</span>`}</div>
+        <div class="avatar-actions">
+          <label class="btn btn-ghost" style="max-width:180px;cursor:pointer;margin:0"><input type="file" id="avatar-input" accept="image/*" style="display:none"/>Загрузить фото</label>
+          ${p.avatarUri?'<button type="button" class="btn-link" id="avatar-remove">Убрать</button>':''}
+        </div>
+        <input type="hidden" name="avatarUri" id="avatar-uri" value="${esc(p.avatarUri||'')}"/>
+      </div>
       <div class="field-row">
         <div class="field"><label>Имя</label><input name="firstName" required value="${esc(p.firstName||'')}"/></div>
         <div class="field"><label>Фамилия</label><input name="lastName" required value="${esc(p.lastName||'')}"/></div>
@@ -839,7 +924,7 @@ function viewOnboarding(){
         <div class="field"><label>Клуб</label><input name="club" value="${esc(p.club||'')}"/></div>
       </div>
       <div class="field"><label>Тренер</label><input name="coach" value="${esc(p.coach||'')}" placeholder="ФИО"/></div>
-      <div style="margin-top:auto;padding-top:12px"><button type="submit" class="btn btn-primary">${coachMode?'Добавить':'Начать'}</button></div>
+      <div style="margin-top:auto;padding-top:12px"><button type="submit" class="btn btn-primary">${isAddProfile?'Добавить':'Начать'}</button></div>
     </form>
   </div>`;
 }
@@ -1040,6 +1125,7 @@ function viewProfile(){
       <div class="oh-label">Обзор атлета</div>
       <div class="oh-row">
         <div class="oh-chip">
+          <div class="oh-avatar">${p.avatarUri?`<img src="${esc(p.avatarUri)}"/>`:`${(p.firstName||'?')[0].toUpperCase()}${(p.lastName||'')[0]?.toUpperCase()||''}`}</div>
           <span class="oh-name">${esc(p.firstName)} ${esc(p.lastName)}</span>
           <span class="oh-sep">·</span>
           <span class="oh-meta">${esc(sportName(p.sport))}</span>
@@ -1785,6 +1871,14 @@ function viewSettings(){
     ${p ? `
       <h2 class="name" style="font-size:18px;margin-top:24px">Профиль спортсмена</h2>
       <form id="profile-form" style="margin-top:12px">
+        <div class="avatar-row">
+          <div class="avatar-preview" id="avatar-preview">${p.avatarUri?`<img src="${esc(p.avatarUri)}"/>`:`<span>${(p.firstName?p.firstName[0]:'?').toUpperCase()}${(p.lastName?p.lastName[0]:'').toUpperCase()}</span>`}</div>
+          <div class="avatar-actions">
+            <label class="btn btn-ghost" style="max-width:180px;cursor:pointer;margin:0"><input type="file" id="avatar-input" accept="image/*" style="display:none"/>${p.avatarUri?'Заменить фото':'Загрузить фото'}</label>
+            ${p.avatarUri?'<button type="button" class="btn-link" id="avatar-remove">Убрать</button>':''}
+          </div>
+          <input type="hidden" name="avatarUri" id="avatar-uri" value="${esc(p.avatarUri||'')}"/>
+        </div>
         <div class="field-row">
           <div class="field"><label>Имя</label><input name="firstName" value="${esc(p.firstName||'')}" required/></div>
           <div class="field"><label>Фамилия</label><input name="lastName" value="${esc(p.lastName||'')}" required/></div>
@@ -1801,6 +1895,28 @@ function viewSettings(){
         <div class="field"><label>Тренер</label><input name="coach" value="${esc(p.coach||'')}"/></div>
         <button type="submit" class="btn btn-primary">Сохранить</button>
       </form>
+    ` : ''}
+
+    ${!isCoach && state.athletes.length ? `
+      <div class="divider"></div>
+      <div class="row">
+        <span class="label">Мои виды спорта</span>
+        <button class="btn-link" data-go="athlete-add">+ Добавить</button>
+      </div>
+      <div class="profiles-list">
+        ${state.athletes.map(a=>{
+          const pp=a.profile||{};
+          const active=a.id===state.currentAthleteId;
+          return `<div class="profile-item ${active?'active':''}" data-switch-athlete="${a.id}">
+            <div class="pi-av">${pp.avatarUri?`<img src="${esc(pp.avatarUri)}"/>`:`${(pp.firstName||'?')[0].toUpperCase()}${(pp.lastName||'')[0]?.toUpperCase()||''}`}</div>
+            <div class="pi-main">
+              <div class="pi-t">${esc(sportName(pp.sport))} · до ${fmtN(pp.weightCategoryKg||0)} кг</div>
+              <div class="pi-s">${esc(pp.firstName||'')} ${esc(pp.lastName||'')}${pp.rank?' · '+esc(pp.rank):''}</div>
+            </div>
+            ${active?'<div class="pi-on">Активный</div>':''}
+          </div>`;
+        }).join('')}
+      </div>
     ` : ''}
 
     <div class="divider"></div>
@@ -1870,7 +1986,21 @@ function renderSidebar(){
       <div class="s-foot">Trophy · работает оффлайн</div>
     `;
   } else {
+    // Переключатель профилей для спортсмена если > 1
+    const ath=currentAthlete();
+    const multiProfile=state.athletes.length>1;
+    const switcher = multiProfile && ath ? `
+      <div class="s-profile" data-go="settings" title="Сменить вид спорта">
+        <div class="sp-av">${ath.profile.avatarUri?`<img src="${esc(ath.profile.avatarUri)}"/>`:`${(ath.profile.firstName||'?')[0].toUpperCase()}${(ath.profile.lastName||'')[0]?.toUpperCase()||''}`}</div>
+        <div class="sp-main">
+          <div class="sp-t">${esc(ath.profile.firstName||'')} ${esc(ath.profile.lastName||'')}</div>
+          <div class="sp-s">${esc(sportName(ath.profile.sport))} · до ${fmtN(ath.profile.weightCategoryKg)} кг</div>
+        </div>
+        <span class="sp-arrow">⇅</span>
+      </div>
+    ` : '';
     sb.innerHTML=`${brand('ATLET')}
+      ${switcher}
       <div class="s-group-label">Главное</div>
       <button class="s-item ${c==='dashboard'?'on':''}" data-tab="dashboard">Обзор</button>
       <button class="s-item ${c==='events'?'on':''}" data-tab="events">Турниры</button>
@@ -2053,18 +2183,20 @@ function bind(){
   app.querySelectorAll('[data-go-fight]').forEach(b=>b.onclick=()=>go('fight-edit',{id:b.dataset.goFight}));
 
   const ob=document.getElementById('ob-form');
-  if(ob)ob.onsubmit=e=>{
+  if(ob){
+    attachAvatarUpload();
+    ob.onsubmit=e=>{
     e.preventDefault();
     const fd=new FormData(ob);
     const w=Number(fd.get('weightCategoryKg'));
-    const payload={firstName:fd.get('firstName'),lastName:fd.get('lastName'),sport:fd.get('sport'),weightCategoryKg:w,weightCategoryName:WEIGHT_NAMES[w]||'',rank:fd.get('rank'),city:fd.get('city')||'',club:fd.get('club')||'',coach:fd.get('coach')||''};
-    // Тренер добавляет нового — создаём athlete. Спортсмен редактирует — правим свой профиль или создаёт первого.
-    if(state.role==='coach' && state.route.name==='athlete-add'){
+    const payload={firstName:fd.get('firstName'),lastName:fd.get('lastName'),sport:fd.get('sport'),weightCategoryKg:w,weightCategoryName:WEIGHT_NAMES[w]||'',rank:fd.get('rank'),city:fd.get('city')||'',club:fd.get('club')||'',coach:fd.get('coach')||'',avatarUri:fd.get('avatarUri')||''};
+    // Тренер добавляет нового или спортсмен добавляет ещё один вид спорта — создаём новый athlete
+    if(state.route.name==='athlete-add'){
       const a=addAthlete(payload);
       switchAthlete(a.id);
       save();
-      go('coach-dashboard');
-      toast('Спортсмен добавлен');
+      if(state.role==='coach'){ go('coach-dashboard'); toast('Спортсмен добавлен'); }
+      else { go('dashboard'); toast('Вид спорта добавлен'); }
       return;
     }
     if(!currentAthlete()){
@@ -2077,9 +2209,19 @@ function bind(){
     }
     save();go('dashboard');
   };
+  }
 
   const pf=document.getElementById('profile-form');
-  if(pf)pf.onsubmit=e=>{e.preventDefault();const fd=new FormData(pf);const w=Number(fd.get('weightCategoryKg'));Object.assign(state.profile,{firstName:fd.get('firstName'),lastName:fd.get('lastName'),sport:fd.get('sport'),weightCategoryKg:w,weightCategoryName:WEIGHT_NAMES[w]||'',rank:fd.get('rank'),city:fd.get('city'),club:fd.get('club'),coach:fd.get('coach')});save();toast('Сохранено');go('dashboard')};
+  if(pf){
+    attachAvatarUpload();
+    pf.onsubmit=e=>{
+      e.preventDefault();
+      const fd=new FormData(pf);
+      const w=Number(fd.get('weightCategoryKg'));
+      Object.assign(state.profile,{firstName:fd.get('firstName'),lastName:fd.get('lastName'),sport:fd.get('sport'),weightCategoryKg:w,weightCategoryName:WEIGHT_NAMES[w]||'',rank:fd.get('rank'),city:fd.get('city'),club:fd.get('club'),coach:fd.get('coach'),avatarUri:fd.get('avatarUri')||state.profile.avatarUri||''});
+      save();toast('Сохранено');go('dashboard');
+    };
+  }
 
   const ef=document.getElementById('event-form');
   if(ef){
@@ -2263,8 +2405,81 @@ function attachVoiceInput(textarea){
 /* === History === */
 window.addEventListener('popstate',e=>{if(e.state&&e.state.route){state.route=e.state.route;render()}else{state.route={name:state.role==='coach'?'coach-dashboard':'dashboard',params:{}};render()}});
 
+/* === Демо-данные (по ?demo=1 URL) ===
+   Реальные турниры пользователя, 45 кг, бокс. */
+const DEMO_DATA = {
+  role:'athlete', coach:null, currentAthleteId:'demo-a1',
+  athletes:[{
+    id:'demo-a1',
+    profile:{firstName:'Спортсмен',lastName:'Тестовый',sport:'boxing',weightCategoryKg:45,weightCategoryName:'',rank:'1-й',city:'Алматы',club:'БК Алатау',coach:'Арман Касенов',avatarUri:''},
+    events:[
+      // Дек 2021 — 1 место, 2 боя
+      {id:'d-e1',title:'Турнир декабря',date:'2021-12-21',city:'Алматы',venue:'',level:'city',weightKg:45,weighIn:44.8,walkAround:47.2,place:1,totalParticipants:8,status:'completed',notes:'Первая золотая медаль',goal:{type:'gold',custom:null}},
+      // Авг 2022 — Пышный, 3 место, 1-2
+      {id:'d-e2',title:'Пышный',date:'2022-08-22',city:'Алматы',venue:'',level:'city',weightKg:45,weighIn:44.9,walkAround:47.5,place:3,totalParticipants:16,status:'completed',notes:'',goal:{type:'top3',custom:null}},
+      // 1 апр 2024 — 42 кг, проиграл
+      {id:'d-e3',title:'Весенний турнир',date:'2024-04-01',city:'Алматы',venue:'',level:'city',weightKg:42,weighIn:41.9,walkAround:44.1,place:null,totalParticipants:12,status:'completed',notes:'Гонял с 45 до 42 — тяжело',goal:null},
+      // 17 янв 2026 — 3 место
+      {id:'d-e4',title:'Открытый турнир января',date:'2026-01-17',city:'Алматы',venue:'',level:'regional',weightKg:45,weighIn:44.7,walkAround:47.0,place:3,totalParticipants:16,status:'completed',notes:'',goal:{type:'top3',custom:null}},
+      // 5 фев 2026 — 2 место, 4 боя 3-1
+      {id:'d-e5',title:'Первенство февраля',date:'2026-02-05',city:'Алматы',venue:'',level:'regional',weightKg:45,weighIn:44.8,walkAround:47.3,place:2,totalParticipants:32,status:'completed',notes:'В финале не хватило выносливости',goal:{type:'gold',custom:null}},
+      // 14 фев 2026 — 1 место, сразу финал (1 бой)
+      {id:'d-e6',title:'Февральский финал',date:'2026-02-14',city:'Алматы',venue:'',level:'regional',weightKg:45,weighIn:44.9,walkAround:47.1,place:1,totalParticipants:4,status:'completed',notes:'Прошёл до финала без боя — соперники снялись',goal:{type:'gold',custom:null}}
+    ],
+    fights:[
+      // Event d-e1: 2 победы
+      {id:'d-f1',eventId:'d-e1',round:'1/2',orderIndex:1,opponentName:'Азамат Серікулы',opponentClub:'Союз',opponentCity:'Алматы',result:'win',method:'decision_unanimous',roundsTotal:3,roundEnded:null,scoreSelf:'29',scoreOpponent:'27',worked:'',didntWork:'',tags:[]},
+      {id:'d-f2',eventId:'d-e1',round:'Финал',orderIndex:2,opponentName:'Данияр Омаров',opponentClub:'Астана',opponentCity:'Астана',result:'win',method:'decision_unanimous',roundsTotal:3,roundEnded:null,scoreSelf:'30','scoreOpponent':'27',worked:'Джеб, дистанция',didntWork:'',tags:['Джеб']},
+      // Event d-e2: 1 победа, 2 поражения — 3 место
+      {id:'d-f3',eventId:'d-e2',round:'1/8',orderIndex:1,opponentName:'Нурлан Аманжолов',opponentClub:'',opponentCity:'Шымкент',result:'win',method:'tko',roundsTotal:3,roundEnded:2,scoreSelf:'',scoreOpponent:'',worked:'',didntWork:'',tags:[]},
+      {id:'d-f4',eventId:'d-e2',round:'1/4',orderIndex:2,opponentName:'Ерлан Сатыбалдиев',opponentClub:'Алматы',opponentCity:'Алматы',result:'loss',method:'decision_split',roundsTotal:3,roundEnded:null,scoreSelf:'28',scoreOpponent:'29',worked:'Работа ног',didntWork:'Опустил локоть в атаке',tags:['Защита корпуса']},
+      {id:'d-f5',eventId:'d-e2',round:'За 3 место',orderIndex:3,opponentName:'Руслан Жаксыбаев',opponentClub:'Талдыкорган',opponentCity:'Талдыкорган',result:'loss',method:'decision_majority',roundsTotal:3,roundEnded:null,scoreSelf:'28',scoreOpponent:'29',worked:'',didntWork:'Выносливость в 3 раунде',tags:['Выносливость 3р']},
+      // Event d-e3: 1 проигрыш, 42 кг
+      {id:'d-f6',eventId:'d-e3',round:'1/8',orderIndex:1,opponentName:'Арман Кудабаев',opponentClub:'',opponentCity:'',result:'loss',method:'decision_unanimous',roundsTotal:3,roundEnded:null,scoreSelf:'27',scoreOpponent:'29',worked:'',didntWork:'Согнанный вес сильно отразился на скорости',tags:['Выносливость 3р']},
+      // Event d-e4: 3 место, 2 боя (1 победа, 1 проигрыш)
+      {id:'d-f7',eventId:'d-e4',round:'1/4',orderIndex:1,opponentName:'Даурен Нурсултанов',opponentClub:'Нур-Султан',opponentCity:'Астана',result:'win',method:'decision_unanimous',roundsTotal:3,roundEnded:null,scoreSelf:'29',scoreOpponent:'28',worked:'',didntWork:'',tags:[]},
+      {id:'d-f8',eventId:'d-e4',round:'1/2',orderIndex:2,opponentName:'Арман Ибрагимов',opponentClub:'Чимкент',opponentCity:'Шымкент',result:'loss',method:'decision_split',roundsTotal:3,roundEnded:null,scoreSelf:'28',scoreOpponent:'29',worked:'',didntWork:'Опять опустил локоть по корпусу',tags:['Защита корпуса']},
+      // Event d-e5: 4 боя, 3 победы, финал поражение
+      {id:'d-f9',eventId:'d-e5',round:'1/16',orderIndex:1,opponentName:'Азамат Турсунов',opponentClub:'Семей',opponentCity:'Семей',result:'win',method:'decision_unanimous',roundsTotal:3,roundEnded:null,scoreSelf:'30',scoreOpponent:'27',worked:'',didntWork:'',tags:[]},
+      {id:'d-f10',eventId:'d-e5',round:'1/8',orderIndex:2,opponentName:'Канат Абдуллаев',opponentClub:'',opponentCity:'Атырау',result:'win',method:'tko',roundsTotal:3,roundEnded:2,scoreSelf:'',scoreOpponent:'',worked:'',didntWork:'',tags:[]},
+      {id:'d-f11',eventId:'d-e5',round:'1/4',orderIndex:3,opponentName:'Адилет Жумабаев',opponentClub:'Караганда',opponentCity:'Караганда',result:'win',method:'decision_unanimous',roundsTotal:3,roundEnded:null,scoreSelf:'30',scoreOpponent:'27',worked:'Кросс справа',didntWork:'',tags:[]},
+      {id:'d-f12',eventId:'d-e5',round:'Финал',orderIndex:4,opponentName:'Бахтияр Турлыбек',opponentClub:'Астана',opponentCity:'Астана',result:'loss',method:'decision_split',roundsTotal:3,roundEnded:null,scoreSelf:'28',scoreOpponent:'29',worked:'Два раунда был точнее',didntWork:'Выносливость 3 раунда просела, задыхался',tags:['Выносливость 3р','Защита корпуса']},
+      // Event d-e6: 1 бой, сразу финал, победа нокаутом
+      {id:'d-f13',eventId:'d-e6',round:'Финал',orderIndex:1,opponentName:'Руслан Абдрахманов',opponentClub:'Шымкент',opponentCity:'Шымкент',result:'win',method:'ko',roundsTotal:3,roundEnded:3,scoreSelf:'',scoreOpponent:'',worked:'Джеб точный, финальный кросс справа на контратаке',didntWork:'',tags:['Джеб','Контратака']}
+    ],
+    weights:[
+      {id:'d-w1',date:'2026-02-14',kg:44.9},
+      {id:'d-w2',date:'2026-02-13',kg:45.3},
+      {id:'d-w3',date:'2026-02-12',kg:45.8},
+      {id:'d-w4',date:'2026-02-11',kg:46.2},
+      {id:'d-w5',date:'2026-02-10',kg:46.5},
+      {id:'d-w6',date:'2026-02-09',kg:46.8}
+    ],
+    trainings:[
+      {id:'d-t1',date:new Date().toISOString().slice(0,10),type:'technique',durationMin:90,feel:4,note:''},
+      {id:'d-t2',date:new Date(Date.now()-86400000).toISOString().slice(0,10),type:'sparring',durationMin:60,feel:3,note:'Спарринг с Данияром'},
+      {id:'d-t3',date:new Date(Date.now()-2*86400000).toISOString().slice(0,10),type:'cardio',durationMin:45,feel:4,note:''},
+      {id:'d-t4',date:new Date(Date.now()-3*86400000).toISOString().slice(0,10),type:'technique',durationMin:90,feel:5,note:''}
+    ],
+    opponentNotes:{},
+    goals:[]
+  }]
+};
+function loadDemoData(){
+  state.role=DEMO_DATA.role;
+  state.coach=DEMO_DATA.coach;
+  state.athletes=JSON.parse(JSON.stringify(DEMO_DATA.athletes));
+  state.currentAthleteId=DEMO_DATA.currentAthleteId;
+  syncFromAthlete();
+  save();
+}
+
 /* === Старт === */
 load();
+// ?demo=1 — загрузить демо-данные (реальные турниры пользователя) если хранилище пустое
+if(location.search.indexOf('demo=1')!==-1 && !state.athletes.length){
+  loadDemoData();
+}
 if(location.hash){const n=location.hash.slice(1);if(['dashboard','coach-dashboard','events','trainings','weight','opponents','stats','settings'].includes(n))state.route={name:n,params:{}}}
 render();
 
