@@ -1,4 +1,4 @@
-var CACHE = 'trophy-v1';
+var CACHE = 'trophy-v3';
 var ASSETS = ['./', './index.html', './manifest.json', './icon-192.svg', './icon-512.svg'];
 
 self.addEventListener('install', function(e){
