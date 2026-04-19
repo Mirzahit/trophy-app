@@ -508,6 +508,9 @@
   .op-score.draw{color:var(--text-secondary)}
 
   /* Статистика — динамика по турнирам */
+  .bars.chart-narrow{max-width:460px}
+  .bars.chart-narrow svg{max-width:100%;height:auto}
+  @media (min-width:1024px){.bars.chart-narrow{max-width:460px!important}}
   .t-stats-list{display:flex;flex-direction:column;gap:4px;margin-top:4px}
   .t-stats-row{display:flex;align-items:center;gap:12px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .1s}
   .t-stats-row:hover{background:var(--bg-subtle,rgba(255,255,255,.04))}
@@ -1615,7 +1618,7 @@ function viewStats(){
     ${(()=>{
       const done=filteredEvents.filter(e=>e.status!=='upcoming').slice().sort((a,b)=>a.date.localeCompare(b.date));
       if(done.length<2) return '';
-      return `<div class="bars"><h3>Динамика по турнирам</h3>${placesOverTimeChart(done)}</div>`;
+      return `<div class="bars chart-narrow"><h3>Динамика по турнирам</h3>${placesOverTimeChart(done)}</div>`;
     })()}
 
     ${(()=>{
@@ -1652,7 +1655,7 @@ function viewStats(){
 
 /* SVG-график динамики мест по турнирам. Ось Y инвертирована (1 место сверху). */
 function placesOverTimeChart(events){
-  const W=320,H=160,pad={l:34,r:16,t:18,b:36};
+  const W=320,H=200,pad={l:34,r:16,t:18,b:36};
   const n=events.length;
   if(n<2) return '';
   const placeColor=p=>p===1?'#d4af37':p===2?'#b8b6b0':p===3?'#cd7f32':p?'#6b6b63':'#3a3a3a';
