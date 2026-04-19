@@ -2909,14 +2909,23 @@ function appendDemoToCurrent(){
 
 /* === Старт === */
 load();
-// ?demo=1 — принудительно загрузить демо-данные (перезаписывает текущие)
+// ?demo=1 — умная загрузка: если профиль есть, подставляет в него, иначе заменяет всё
 if(location.search.indexOf('demo=1')!==-1){
-  loadDemoData();
+  if(currentAthlete()) appendDemoToCurrent();
+  else loadDemoData();
 }
 if(location.hash){const n=location.hash.slice(1);if(['dashboard','coach-dashboard','events','trainings','weight','opponents','stats','settings'].includes(n))state.route={name:n,params:{}}}
 render();
 
-if('serviceWorker' in navigator && location.protocol.startsWith('http')){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js').then(reg=>{reg.update()}).catch(()=>{});
+  });
+  // Перезагружаем страницу когда активируется новая версия SW
+  navigator.serviceWorker.addEventListener('message',e=>{
+    if(e.data && e.data.type==='RELOAD') location.reload();
+  });
+}
 </script>
 </body>
 </html>
