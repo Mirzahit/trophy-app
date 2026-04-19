@@ -1293,7 +1293,10 @@ function viewProfile(){
         <div class="e-icon">${medalIcon('#00e5a0')}</div>
         <div class="e-title">Пока пусто</div>
         <div class="e-sub">Добавь первый турнир — статистика соберётся сама.</div>
-        <button class="btn btn-primary" style="margin-top:16px;max-width:240px" data-go="event-new">Добавить турнир</button>
+        <div class="stack" style="max-width:320px;margin:16px auto 0">
+          <button class="btn btn-primary" data-go="event-new">+ Добавить турнир</button>
+          <button class="btn btn-ghost" id="append-demo-home">Подставить тестовые данные (6 турниров)</button>
+        </div>
       </div>
     `}
 
@@ -1594,7 +1597,12 @@ function viewStats(){
 
     ${Object.keys(la).length?`<div class="bars"><h3>По уровням турниров</h3>${Object.entries(la).map(([lv,x])=>{const p=x.t?Math.round(x.w/x.t*100):0;return `<div class="bar-row"><div class="nm">${esc(levelName(lv))}</div><div class="tr"><div style="width:${p}%"></div></div><div class="nu">${p}%</div></div>`}).join('')}</div>`:''}
 
-    ${tot===0?`<div class="empty-state"><div class="e-icon">${medalIcon('#00e5a0')}</div><div class="e-title">Пока нет данных</div><div class="e-sub">Добавь турниры и бои — здесь появятся графики.</div></div>`:''}`;
+    ${tot===0?`<div class="empty-state"><div class="e-icon">${medalIcon('#00e5a0')}</div><div class="e-title">Пока нет данных</div><div class="e-sub">Добавь турниры и бои — здесь появятся графики.</div>
+      <div class="stack" style="max-width:320px;margin:16px auto 0">
+        <button class="btn btn-primary" data-go="event-new">+ Новый турнир</button>
+        <button class="btn btn-ghost" id="append-demo">Подставить тестовые данные (6 турниров)</button>
+      </div>
+    </div>`:''}`;
 }
 
 /* SVG-график динамики веса */
@@ -2661,6 +2669,15 @@ function bind(){
     loadDemoData();render();toast('Демо-данные загружены');
   });
 
+  // Подставить демо в текущий профиль (не трогая имя/спорт/весовую)
+  const appendDemoBtn=document.getElementById('append-demo');
+  const appendDemoHome=document.getElementById('append-demo-home');
+  const handler=()=>modal('Подставить 6 тестовых турниров?','В твой текущий профиль добавятся: 6 турниров, 13 боёв, записи веса и тренировки, цель сезона. Профиль (имя, спорт, весовая) не меняется.',()=>{
+    appendDemoToCurrent();render();toast('Турниры добавлены');
+  });
+  if(appendDemoBtn) appendDemoBtn.onclick=handler;
+  if(appendDemoHome) appendDemoHome.onclick=handler;
+
   const rs=document.getElementById('reset-all');
   if(rs)rs.onclick=()=>modal('Удалить все данные?','Все спортсмены, их бои, вес и тренировки будут стёрты.',()=>{
     localStorage.removeItem(STORAGE_KEY);
@@ -2863,6 +2880,29 @@ function loadDemoData(){
   state.coach=DEMO_DATA.coach;
   state.athletes=JSON.parse(JSON.stringify(DEMO_DATA.athletes));
   state.currentAthleteId=DEMO_DATA.currentAthleteId;
+  syncFromAthlete();
+  save();
+}
+/* Добавить демо-события в ТЕКУЩИЙ профиль (не трогая имя/спорт/весовую).
+   Полезно когда уже онбордился, но хочется сразу наполнение. */
+function appendDemoToCurrent(){
+  const a=currentAthlete();
+  if(!a){loadDemoData();return}
+  const demoAth=JSON.parse(JSON.stringify(DEMO_DATA.athletes[0]));
+  // Префиксируем ID чтобы не конфликтовали с возможно существующими
+  const suffix='_'+uid();
+  const remap={};
+  demoAth.events.forEach(e=>{const nid=e.id+suffix;remap[e.id]=nid;e.id=nid});
+  demoAth.fights.forEach(f=>{f.id=f.id+suffix;f.eventId=remap[f.eventId]||f.eventId});
+  demoAth.weights.forEach(w=>{w.id=w.id+suffix});
+  demoAth.trainings.forEach(t=>{t.id=t.id+suffix});
+
+  a.events=(a.events||[]).concat(demoAth.events);
+  a.fights=(a.fights||[]).concat(demoAth.fights);
+  a.weights=(a.weights||[]).concat(demoAth.weights);
+  a.trainings=(a.trainings||[]).concat(demoAth.trainings);
+  a.opponentNotes=Object.assign({},a.opponentNotes||{},demoAth.opponentNotes||{});
+  if(!a.seasonGoal && demoAth.seasonGoal) a.seasonGoal=demoAth.seasonGoal;
   syncFromAthlete();
   save();
 }
