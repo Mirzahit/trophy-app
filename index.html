@@ -507,6 +507,25 @@
   .op-score.loss{color:var(--danger)}
   .op-score.draw{color:var(--text-secondary)}
 
+  /* Статистика — динамика по турнирам */
+  .t-stats-list{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+  .t-stats-row{display:flex;align-items:center;gap:12px;padding:10px 10px;border-radius:10px;cursor:pointer;transition:background .1s}
+  .t-stats-row:hover{background:var(--bg-subtle,rgba(255,255,255,.04))}
+  .tsr-date{flex:0 0 52px;text-align:center}
+  .tsr-d{font-size:16px;font-weight:500;line-height:1;letter-spacing:-.4px;font-feature-settings:"tnum" 1}
+  .tsr-m{font-size:9px;text-transform:uppercase;color:var(--text-secondary);margin-top:3px;letter-spacing:.2px;font-weight:500}
+  .tsr-main{flex:1;min-width:0}
+  .tsr-t{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tsr-s{font-size:11px;color:var(--text-secondary);margin-top:2px}
+  .tsr-r{flex:0 0 auto;display:flex;align-items:center;gap:8px}
+  .tsr-place{font-size:18px;font-weight:500;font-feature-settings:"tnum" 1;letter-spacing:-.4px}
+  .tsr-place.gold{color:var(--gold,#d4af37)}
+  .tsr-place.silver{color:var(--silver,#b8b6b0)}
+  .tsr-place.bronze{color:var(--bronze,#cd7f32)}
+  .tsr-g{width:18px;height:18px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+  .tsr-g.ok{background:rgba(0,229,160,.2);color:var(--accent,#00e5a0)}
+  .tsr-g.bad{background:rgba(201,79,79,.2);color:var(--danger,#c94f4f)}
+
   /* Соперники — карточки с формой и реваншем */
   .op-card{display:flex;flex-direction:column;gap:8px;padding:14px 16px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--r-md);cursor:pointer;transition:border-color .1s}
   .op-card:hover{border-color:var(--text-secondary)}
@@ -1593,6 +1612,32 @@ function viewStats(){
       ${weightChart(weightPts)}
     </div>`:''}
 
+    ${(()=>{
+      const done=filteredEvents.filter(e=>e.status!=='upcoming').slice().sort((a,b)=>a.date.localeCompare(b.date));
+      if(done.length<2) return '';
+      return `<div class="bars"><h3>Динамика по турнирам</h3>${placesOverTimeChart(done)}</div>`;
+    })()}
+
+    ${(()=>{
+      const done=filteredEvents.filter(e=>e.status!=='upcoming').slice().sort((a,b)=>b.date.localeCompare(a.date));
+      if(!done.length) return '';
+      return `<div class="bars"><h3>По турнирам</h3><div class="t-stats-list">${done.map(e=>{
+        const fs=eventFights(e.id);
+        const w=fs.filter(x=>x.result==='win').length, l=fs.filter(x=>x.result==='loss').length;
+        const pct=fs.length?Math.round(w/fs.length*100):0;
+        const pc=e.place===1?'gold':e.place===2?'silver':e.place===3?'bronze':'';
+        const gs=eventGoalStatus(e);
+        return `<div class="t-stats-row" data-go-event="${e.id}">
+          <div class="tsr-date"><div class="tsr-d num">${fmtDay(e.date)}</div><div class="tsr-m">${fmtMon(e.date)} ${String(new Date(e.date).getFullYear()).slice(2)}</div></div>
+          <div class="tsr-main">
+            <div class="tsr-t">${esc(e.title)}</div>
+            <div class="tsr-s">${levelName(e.level)} · ${fs.length} бо${plural(fs.length,'й','я','ёв')}${fs.length?(' · '+w+'–'+l+' · '+pct+'%'):''}</div>
+          </div>
+          <div class="tsr-r"><div class="tsr-place ${pc}">${e.place||'—'}</div>${gs==='achieved'?'<div class="tsr-g ok">✓</div>':gs==='missed'?'<div class="tsr-g bad">×</div>':''}</div>
+        </div>`;
+      }).join('')}</div></div>`;
+    })()}
+
     ${mr.length?`<div class="bars"><h3>Способы побед</h3>${mr.map(([m,c])=>{const pct=Math.round(c/totalWins*100);return `<div class="bar-row"><div class="nm">${esc(methodName(m))}</div><div class="tr"><div style="width:${c/mx*100}%"></div></div><div class="nu">${c} (${pct}%)</div></div>`}).join('')}</div>`:''}
 
     ${Object.keys(la).length?`<div class="bars"><h3>По уровням турниров</h3>${Object.entries(la).map(([lv,x])=>{const p=x.t?Math.round(x.w/x.t*100):0;return `<div class="bar-row"><div class="nm">${esc(levelName(lv))}</div><div class="tr"><div style="width:${p}%"></div></div><div class="nu">${p}%</div></div>`}).join('')}</div>`:''}
@@ -1603,6 +1648,41 @@ function viewStats(){
         <button class="btn btn-ghost" id="append-demo">Подставить тестовые данные (6 турниров)</button>
       </div>
     </div>`:''}`;
+}
+
+/* SVG-график динамики мест по турнирам. Ось Y инвертирована (1 место сверху). */
+function placesOverTimeChart(events){
+  const W=320,H=160,pad={l:34,r:16,t:18,b:36};
+  const n=events.length;
+  if(n<2) return '';
+  const placeColor=p=>p===1?'#d4af37':p===2?'#b8b6b0':p===3?'#cd7f32':p?'#6b6b63':'#3a3a3a';
+  // Макс место для диапазона
+  const places=events.map(e=>e.place||8);
+  const maxP=Math.max(8, ...places);
+  const x=i=>pad.l+(n>1?(i/(n-1))*(W-pad.l-pad.r):0);
+  // Y: 1 сверху, maxP снизу
+  const y=p=>pad.t+((p-1)/(maxP-1))*(H-pad.t-pad.b);
+
+  const pts=events.map((e,i)=>({x:x(i),y:y(e.place||maxP),p:e.place,e}));
+  const line=pts.map((p,i)=>`${i?'L':'M'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+
+  // Горизонтальные линии-референс для 1, 3, 5 мест
+  const refLines=[1,3,5].filter(p=>p<=maxP).map(p=>`<line x1="${pad.l}" y1="${y(p).toFixed(1)}" x2="${W-pad.r}" y2="${y(p).toFixed(1)}" stroke="rgba(128,128,128,.18)" stroke-width="1" stroke-dasharray="3 3"/><text x="${pad.l-6}" y="${(y(p)+3).toFixed(1)}" font-size="9" fill="#8a8880" text-anchor="end" font-family="Inter">${p}</text>`).join('');
+
+  // Подписи дат по X (показываем не более 6)
+  const labelStep=Math.ceil(n/6);
+  const xLabels=events.map((e,i)=>{
+    if(i%labelStep!==0 && i!==n-1) return '';
+    return `<text x="${x(i).toFixed(1)}" y="${(H-10).toFixed(1)}" font-size="9" fill="#8a8880" text-anchor="middle" font-family="Inter">${fmtDay(e.date)}.${fmtMon(e.date)}</text>`;
+  }).join('');
+
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">
+    ${refLines}
+    <path d="${line}" fill="none" stroke="var(--accent,#00e5a0)" stroke-width="1.8" stroke-linejoin="round" opacity=".55"/>
+    ${pts.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="5" fill="${placeColor(p.p)}" stroke="#1a1a1a" stroke-width="1.5"/>`).join('')}
+    ${xLabels}
+    <text x="4" y="${(pad.t).toFixed(1)}" font-size="9" fill="#8a8880" font-family="Inter">Место</text>
+  </svg>`;
 }
 
 /* SVG-график динамики веса */
