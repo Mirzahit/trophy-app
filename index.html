@@ -2322,6 +2322,7 @@ function viewSettings(){
     <div class="label">Данные</div>
     <div class="stack" style="margin-top:10px">
       <button class="btn btn-ghost" id="load-demo">Загрузить демо-данные</button>
+      <button class="btn btn-ghost" id="dedupe">Очистить дубликаты турниров</button>
       <button class="btn btn-ghost" id="export-json">Экспорт в JSON</button>
       <button class="btn btn-ghost" id="import-json">Импорт из JSON</button>
       <button class="btn btn-danger" id="reset-all">Удалить все данные</button>
@@ -2749,11 +2750,18 @@ function bind(){
     loadDemoData();render();toast('Демо-данные загружены');
   });
 
+  const dedupeBtn=document.getElementById('dedupe');
+  if(dedupeBtn) dedupeBtn.onclick=()=>modal('Очистить дубликаты?','Турниры с одинаковым названием и датой будут объединены в один. Бои из дубликатов будут удалены.',()=>{
+    const n=dedupeEvents();render();toast(n?('Удалено дубликатов: '+n):'Дубликатов не найдено');
+  });
+
   // Подставить демо в текущий профиль (не трогая имя/спорт/весовую)
   const appendDemoBtn=document.getElementById('append-demo');
   const appendDemoHome=document.getElementById('append-demo-home');
   const handler=()=>modal('Подставить 6 тестовых турниров?','В твой текущий профиль добавятся: 6 турниров, 13 боёв, записи веса и тренировки, цель сезона. Профиль (имя, спорт, весовая) не меняется.',()=>{
-    appendDemoToCurrent();render();toast('Турниры добавлены');
+    const added=appendDemoToCurrent();
+    render();
+    toast(added?'Турниры добавлены':'Демо-турниры уже в профиле');
   });
   if(appendDemoBtn) appendDemoBtn.onclick=handler;
   if(appendDemoHome) appendDemoHome.onclick=handler;
@@ -2964,12 +2972,15 @@ function loadDemoData(){
   save();
 }
 /* Добавить демо-события в ТЕКУЩИЙ профиль (не трогая имя/спорт/весовую).
-   Полезно когда уже онбордился, но хочется сразу наполнение. */
+   Идемпотентно — если демо уже подставлено, ничего не делает. */
 function appendDemoToCurrent(){
   const a=currentAthlete();
-  if(!a){loadDemoData();return}
+  if(!a){loadDemoData();return false}
+  // Проверяем — не подставлено ли уже (по title+date совпадает хоть один демо-турнир)
+  const demoSig=DEMO_DATA.athletes[0].events.map(e=>e.title+'|'+e.date);
+  const existing=(a.events||[]).filter(e=>demoSig.includes(e.title+'|'+e.date));
+  if(existing.length>0) return false; // уже есть
   const demoAth=JSON.parse(JSON.stringify(DEMO_DATA.athletes[0]));
-  // Префиксируем ID чтобы не конфликтовали с возможно существующими
   const suffix='_'+uid();
   const remap={};
   demoAth.events.forEach(e=>{const nid=e.id+suffix;remap[e.id]=nid;e.id=nid});
@@ -2985,11 +2996,41 @@ function appendDemoToCurrent(){
   if(!a.seasonGoal && demoAth.seasonGoal) a.seasonGoal=demoAth.seasonGoal;
   syncFromAthlete();
   save();
+  return true;
+}
+
+/* Удалить дублирующиеся турниры (одинаковое title+date) оставив по одному + почистить их дубль-бои. */
+function dedupeEvents(){
+  const a=currentAthlete();
+  if(!a) return 0;
+  const seen=new Map();
+  const removed=[];
+  const keptEvents=[];
+  for(const e of (a.events||[])){
+    const key=e.title+'|'+e.date;
+    if(seen.has(key)){
+      removed.push(e.id);
+    } else {
+      seen.set(key,e.id);
+      keptEvents.push(e);
+    }
+  }
+  a.events=keptEvents;
+  a.fights=(a.fights||[]).filter(f=>!removed.includes(f.eventId));
+  // Дедуп весов по дате
+  const wSeen=new Set();
+  a.weights=(a.weights||[]).filter(w=>{if(wSeen.has(w.date))return false;wSeen.add(w.date);return true});
+  // Дедуп тренировок по date+type
+  const tSeen=new Set();
+  a.trainings=(a.trainings||[]).filter(t=>{const k=t.date+'|'+t.type;if(tSeen.has(k))return false;tSeen.add(k);return true});
+  syncFromAthlete();
+  save();
+  return removed.length;
 }
 
 /* === Старт === */
 load();
-// ?demo=1 — умная загрузка: если профиль есть, подставляет в него, иначе заменяет всё
+// ?demo=1 — умная загрузка: если профиль есть, подставляет (идемпотентно, без дублей); иначе заменяет всё
 if(location.search.indexOf('demo=1')!==-1){
   if(currentAthlete()) appendDemoToCurrent();
   else loadDemoData();
